@@ -137,3 +137,16 @@ STATICFILES_DIRS = [BASE_DIR / 'rentCarApp/static']
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuración para mantener la sesión después de cerrar el navegador
+# Configuración para la duración de las cookies de sesión
+# settings.py
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'  # Usar cookies para la sesión
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # Tiempo de vida de la cookie (7 días)
+SESSION_SAVE_EVERY_REQUEST = True  # Renovar sesión en cada solicitud
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # La sesión no se elimina al cerrar el navegador
+SESSION_COOKIE_SECURE = True  # Solo permite cookies en HTTPS
+CSRF_COOKIE_SECURE = True
+
+
+
