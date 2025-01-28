@@ -42,16 +42,21 @@ def genericApi(request, model, serializer, id=None):
 
     elif request.method == 'PUT':
         data = JSONParser().parse(request)
+        id = int(id) if id else None  # Asegúrate de que id sea un entero
+
         try:
             obj = model.objects.get(pk=id)
         except model.DoesNotExist:
             return JsonResponse({"error": "Objeto no encontrado"}, status=404)
+
         # Se actualiza el objeto con los nuevos datos
-        objects_serializer = serializer(obj, data=data)
+        objects_serializer = serializer(obj, data=data, partial=True)  # Permite actualizar campos parciales
         if objects_serializer.is_valid():
             objects_serializer.save()
             return JsonResponse({"message": "!Actualizado Exitosamente!", "data": objects_serializer.data}, status=200)
+
         return JsonResponse({"error": "Error al actualizar.", "details": objects_serializer.errors}, status=400)
+
 
     elif request.method == 'DELETE':
         try:
@@ -60,8 +65,9 @@ def genericApi(request, model, serializer, id=None):
             return JsonResponse({"message": "!Eliminado Exitosamente!"}, status=200)
         except model.DoesNotExist:
             return JsonResponse({"error": "Objeto no encontrado"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": f"Error inesperado: {str(e)}"}, status=500)
 
-    return JsonResponse({"error": "Método no permitido."}, status=405)
 
 
 # API específica para Marca

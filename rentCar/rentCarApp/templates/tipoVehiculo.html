@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Marcas | Indexing Car Rental{% endblock %}
+{% block title %}Tipos de Vehiculos | Indexing Car Rental{% endblock %}
 
 {% block content %}
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="text-white">Marcas</h2>
+        <h2 class="text-white">Tipos de Vehiculos</h2>
         <!-- Botón para abrir el modal -->
         <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
-            data-bs-target="#crearMarcaModal">Crear Marcas</a>
+            data-bs-target="#creartipoVehiculoModal">Crear Tipo de Vehiculo</a>
     </div>
 
     <table class="table table-hover align-middle" style="background-color: #121212; color: white; width: 100%;">
@@ -21,12 +21,12 @@
             </tr>
         </thead>
         <tbody>
-            {% for marca in marcas %}
+            {% for tipoVehiculo in tipoVehiculos %}
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
-                <td class="py-3">{{ marca.identificador }}</td>
-                <td class="py-3">{{ marca.descripcion }}</td>
+                <td class="py-3">{{ tipoVehiculo.identificador }}</td>
+                <td class="py-3">{{ tipoVehiculo.descripcion }}</td>
                 <td class="py-3">
-                    {% if marca.estado == 1 %}
+                    {% if tipoVehiculo.estado == 1 %}
                     <span class="badge bg-success rounded-pill px-3 py-2">Activo</span>
                     {% else %}
                     <span class="badge bg-danger rounded-pill px-3 py-2">Inactivo</span>
@@ -34,11 +34,11 @@
                 </td>
                 <td class="py-3">
                     <div class="acciones-btns">
-                        <button class="btn btn-warning text-white btn-editar" data-id="{{ marca.identificador }}"
-                            data-descripcion="{{ marca.descripcion }}" data-estado="{{ marca.estado }}">
+                        <button class="btn btn-warning text-white btn-editar" data-id="{{ tipoVehiculo.identificador }}"
+                            data-descripcion="{{ tipoVehiculo.descripcion }}" data-estado="{{ tipoVehiculo.estado }}">
                             <i class="bi bi-pencil-fill"></i>
                         </button>
-                        <button class="btn btn-danger text-white btn-eliminar" data-id="{{ marca.identificador }}">
+                        <button class="btn btn-danger text-white btn-eliminar" data-id="{{ tipoVehiculo.identificador }}">
                             <i class="bi bi-trash-fill"></i>
                         </button>
                     </div>
@@ -46,7 +46,7 @@
             </tr>
             {% empty %}
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
-                <td colspan="4" class="text-center py-4">No hay Marcas disponibles</td>
+                <td colspan="4" class="text-center py-4">No hay Tipos de Vehiculos disponibles</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -85,17 +85,17 @@
 
 
 
-<!-- Modal para Crear Marca -->
-<div class="modal fade" id="crearMarcaModal" tabindex="-1" aria-labelledby="crearMarcaModalLabel" aria-hidden="true">
+<!-- Modal para Crear tipoVehiculo -->
+<div class="modal fade" id="creartipoVehiculoModal" tabindex="-1" aria-labelledby="creartipoVehiculoModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="background-color: #2c2b2b; color: white;">
             <div class="modal-header">
-                <h5 class="modal-title" id="crearMarcaModalLabel">Crear Nueva Marca</h5>
+                <h5 class="modal-title" id="creartipoVehiculoModalLabel">Crear Nuevo Tipo de Vehiculo</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="crearMarcaForm">
+                <form id="creartipoVehiculoForm">
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción</label>
                         <input type="text" class="form-control" id="descripcion" name="descripcion" required>
@@ -111,22 +111,22 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-danger" id="guardarMarca">Guardar</button>
+                <button type="submit" class="btn btn-danger" id="guardartipoVehiculo">Guardar</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="editarMarcaModal" tabindex="-1" aria-labelledby="editarMarcaModalLabel" aria-hidden="true">
+<div class="modal fade" id="editartipoVehiculoModal" tabindex="-1" aria-labelledby="editartipoVehiculoModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="background-color: #2c2b2b; color: white;">
             <div class="modal-header">
-                <h5 class="modal-title" id="editarMarcaModalLabel">Editar Marca</h5>
+                <h5 class="modal-title" id="editartipoVehiculoModalLabel">Editar Tipo de Vehiculo</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editarMarcaForm">
+                <form id="editartipoVehiculoForm">
                     <div class="mb-3">
                         <label for="editDescripcion" class="form-label">Descripción</label>
                         <input type="text" class="form-control" id="editDescripcion" required>
@@ -142,7 +142,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-warning" id="editarMarca">Guardar Cambios</button>
+                <button type="submit" class="btn btn-warning" id="editartipoVehiculo">Guardar Cambios</button>
             </div>
         </div>
     </div>
@@ -157,7 +157,7 @@
                     aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>¿Estás seguro de que deseas eliminar esta marca?</p>
+                <p>¿Estás seguro de que deseas eliminar este Tipo de Vehiculo?</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -172,8 +172,8 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Función para CREAR una nueva marca
-        document.getElementById('guardarMarca').addEventListener('click', function () {
+        // Función para CREAR una nueva tipoVehiculo
+        document.getElementById('guardartipoVehiculo').addEventListener('click', function () {
             const descripcion = document.getElementById('descripcion').value.trim();
             const estado = document.getElementById('estado').value;
 
@@ -182,7 +182,7 @@
                 return;
             }
 
-            fetch('/api/marca/', {
+            fetch('/api/tipoVehiculo/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -197,15 +197,15 @@
                     if (response.ok) {
                         return response.json();
                     } else {
-                        throw new Error('Error al guardar la marca.');
+                        throw new Error('Error al guardar la tipoVehiculo.');
                     }
                 })
                 .then(data => {
-                    mostrarToast('success', data.message || 'Marca agregada exitosamente.');
-                    document.getElementById("crearMarcaForm").reset(); // Limpiar formulario
+                    mostrarToast('success', data.message || 'tipoVehiculo agregada exitosamente.');
+                    document.getElementById("creartipoVehiculoForm").reset(); // Limpiar formulario
 
                     // Ocultar modal después de éxito
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('crearMarcaModal'));
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('creartipoVehiculoModal'));
                     modal.hide();
 
                     setTimeout(() => location.reload(), 1000); // Recargar después de 1s
@@ -215,7 +215,7 @@
                 });
         });
 
-        // Función para manejar la EDICIÓN de una marca
+        // Función para manejar la EDICIÓN de una tipoVehiculo
         document.querySelectorAll(".btn-editar").forEach(button => {
             button.addEventListener("click", function () {
                 const id = this.dataset.id;
@@ -225,16 +225,16 @@
                 // Llenar el modal con los datos actuales
                 document.getElementById("editDescripcion").value = descripcion;
                 document.getElementById("editEstado").value = estado;
-                document.getElementById("editarMarca").dataset.id = id;
+                document.getElementById("editartipoVehiculo").dataset.id = id;
 
                 // Mostrar el modal de edición
-                const modal = new bootstrap.Modal(document.getElementById("editarMarcaModal"));
+                const modal = new bootstrap.Modal(document.getElementById("editartipoVehiculoModal"));
                 modal.show();
             });
         });
 
-        // Guardar cambios de la marca editada
-        document.getElementById("editarMarca").addEventListener("click", function () {
+        // Guardar cambios de la tipoVehiculo editada
+        document.getElementById("editartipoVehiculo").addEventListener("click", function () {
             const id = this.dataset.id;
             const descripcion = document.getElementById("editDescripcion").value.trim();
             const estado = document.getElementById("editEstado").value;
@@ -244,7 +244,7 @@
                 return;
             }
 
-            fetch(`/api/marca/${id}`, {
+            fetch(`/api/tipoVehiculo/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -262,13 +262,13 @@
                         mostrarToast('success', data.message);
                         setTimeout(() => location.reload(), 1000);
                     } else {
-                        mostrarToast('danger', 'Error al actualizar la marca.');
+                        mostrarToast('danger', 'Error al actualizar la tipoVehiculo.');
                     }
                 })
                 .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
         });
 
-        // Función para ELIMINAR una marca
+        // Función para ELIMINAR una tipoVehiculo
         document.querySelectorAll(".btn-eliminar").forEach(button => {
             button.addEventListener("click", function () {
                 const id = this.dataset.id;
@@ -283,7 +283,7 @@
 
                 // Manejar la confirmación de eliminación
                 confirmarBtn.onclick = function () {
-                    fetch(`/api/marca/${id}`, {
+                    fetch(`/api/tipoVehiculo/${id}`, {
                         method: "DELETE",
                         headers: {
                             "X-CSRFToken": "{{ csrf_token }}"
@@ -295,7 +295,7 @@
                                 mostrarToast('success', data.message);
                                 setTimeout(() => location.reload(), 1000);
                             } else {
-                                mostrarToast('danger', 'Error al eliminar la marca.');
+                                mostrarToast('danger', 'Error al eliminar la tipoVehiculo.');
                             }
                         })
                         .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
