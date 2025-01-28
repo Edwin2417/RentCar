@@ -1,11 +1,14 @@
 from django.urls import re_path
 from rentCarApp import views
+# from rentCarApp.view import auth_views, home_views
 
 urlpatterns = [
+    # re_path('', auth_views.login_view, name='login'),  # Página de inicio (login)
+    # re_path('home/', home_views.home_view, name='home'),
+    
     # API endpoints for Marca
     re_path(r'^marca/$', views.marcaApi),
     re_path(r'^marca/([0-9]+)$', views.marcaApi),
-
     # API endpoints for Estado
     re_path(r'^estado/$', views.estadoApi),
     re_path(r'^estado/([0-9]+)$', views.estadoApi),
