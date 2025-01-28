@@ -10,7 +10,6 @@ def login_view(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        # Validar campos vacíos
         if not username:
             messages.error(request, 'El campo de usuario no puede estar vacío.')
         elif not password:
@@ -21,15 +20,13 @@ def login_view(request):
                 if response.status_code == 200:
                     users = response.json()
                     user = next((u for u in users if u['nombre_usuario'] == username), None)
-                    if user and user['contrasena'] == password:  # Validar credenciales
-                        # Guardar información del usuario en la sesión
+                    if user and user['contrasena'] == password:
                         request.session['user_id'] = user['identificador']
                         request.session['user_name'] = user['nombre_usuario']
                         request.session['user_role'] = user['rol']
-                        request.session.set_expiry(60 * 60 * 24 * 7)  # La sesión expira en 7 días
-
-                        # Redirigir a la pantalla de carga o al home
-                        return render(request, 'loading.html')
+                        request.session.set_expiry(60 * 60 * 24 * 7)  # Sesión expira en 7 días
+                        # Redirigir al loading
+                        return redirect('loading')
                     elif user:
                         messages.error(request, 'Contraseña incorrecta.')
                     else:
@@ -42,8 +39,11 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-# Vista para cerrar sesión
+def loading_view(request):
+    return render(request, 'loading.html')
+
+
 def logout_view(request):
-    request.session.flush()  # Eliminar todos los datos de la sesión
+    request.session.flush()
     messages.success(request, 'Sesión cerrada con éxito.')
     return redirect('login')
