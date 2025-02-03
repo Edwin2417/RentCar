@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Vehículos | Indexing Car Rental{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-white">Vehículos</h2>
+        <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
+            data-bs-target="#crearVehiculoModal">Crear Vehículo</a>
+    </div>
+
+    <table class="table table-hover align-middle" style="background-color: #121212; color: white; width: 100%;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <th class="py-3">ID</th>
+                <th class="py-3">Descripción</th>
+                <th class="py-3">No. Chasis</th>
+                <th class="py-3">No. Motor</th>
+                <th class="py-3">No. Placa</th>
+                <th class="py-3">Tipo</th>
+                <th class="py-3">Marca</th>
+                <th class="py-3">Modelo</th>
+                <th class="py-3">Combustible</th>
+                <th class="py-3">Estado</th>
+                <th class="py-3">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vehiculo in vehiculos %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td class="py-3">{{ vehiculo.identificador }}</td>
+                <td class="py-3">{{ vehiculo.descripcion }}</td>
+                <td class="py-3">{{ vehiculo.no_chasis }}</td>
+                <td class="py-3">{{ vehiculo.no_motor }}</td>
+                <td class="py-3">{{ vehiculo.no_placa }}</td>
+        
+                <!-- Tipo de Vehículo -->
+                <td class="py-3">
+                    {% for tipo in tipos_vehiculo %}
+                        {% if tipo.identificador == vehiculo.tipo_vehiculo %}
+                            {{ tipo.descripcion }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+        
+                <!-- Marca -->
+                <td class="py-3">
+                    {% for marca in marcas %}
+                        {% if marca.identificador == vehiculo.marca %}
+                            {{ marca.descripcion }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+        
+                <!-- Modelo -->
+                <td class="py-3">
+                    {% for modelo in modelos %}
+                        {% if modelo.identificador == vehiculo.modelo %}
+                            {{ modelo.descripcion }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+        
+                <!-- Tipo de Combustible -->
+                <td class="py-3">
+                    {% for combustible in tipos_combustible %}
+                        {% if combustible.identificador == vehiculo.tipo_combustible %}
+                            {{ combustible.descripcion }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+        
+                <!-- Estado -->
+                <td class="py-3">
+                    {% for estado in estados %}
+                        {% if estado.identificador == vehiculo.estado %}
+                            <span class="badge bg-{% if estado.identificador == 1 %}success{% else %}danger{% endif %} rounded-pill px-3 py-2">{{ estado.descripcion }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+        
+                <td class="py-3">
+                    <div class="acciones-btns">
+                        <button class="btn btn-warning text-white btn-editar"
+                            data-id="{{ vehiculo.identificador }}"
+                            data-descripcion="{{ vehiculo.descripcion }}"
+                            data-no_chasis="{{ vehiculo.no_chasis }}"
+                            data-no_motor="{{ vehiculo.no_motor }}"
+                            data-no_placa="{{ vehiculo.no_placa }}"
+                            data-tipo_vehiculo="{{ vehiculo.tipo_vehiculo }}"
+                            data-marca="{{ vehiculo.marca }}"
+                            data-modelo="{{ vehiculo.modelo }}"
+                            data-tipo_combustible="{{ vehiculo.tipo_combustible }}"
+                            data-estado="{{ vehiculo.estado }}">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button class="btn btn-danger text-white btn-eliminar" data-id="{{ vehiculo.identificador }}">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td colspan="11" class="text-center py-4">No hay vehículos disponibles</td>
+            </tr>
+            {% endfor %}
+        </tbody>        
+    </table>
+</div>
+
+{% include "paginator.html" %}
+{% include "toasts.html" %}
+{% include "vehiculo/vehiculo_modals.html" %}
+
+<script src="{% static 'js/vehiculo.js' %}"></script>
+
+{% endblock %}

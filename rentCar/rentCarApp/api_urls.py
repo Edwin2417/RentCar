@@ -15,7 +15,7 @@ urlpatterns = [
 
     # API endpoints for Vehiculo
     re_path(r'^vehiculo/$', views.vehiculoApi),
-    re_path(r'^vehiculo/([0-9]+)$', views.vehiculoApi),
+    re_path(r'^vehiculo/([0-9]+)/$', views.vehiculoApi),
 
     # API endpoints for RentaDevolucion
     re_path(r'^rentaDevolucion/$', views.rentaDevolucionApi),

@@ -1,0 +1,164 @@
+document.addEventListener("DOMContentLoaded", function () {
+    // Función para mostrar errores debajo de los inputs
+    function mostrarErrorCampo(campo, mensaje) {
+        let errorSpan = campo.nextElementSibling;
+        if (!errorSpan || !errorSpan.classList.contains("error-message")) {
+            errorSpan = document.createElement("span");
+            errorSpan.classList.add("error-message");
+            errorSpan.style.color = "red";
+            errorSpan.style.fontSize = "16px";
+            errorSpan.style.display = "block";
+            campo.parentNode.appendChild(errorSpan);
+        }
+        errorSpan.innerText = mensaje;
+    }
+
+    // Función para limpiar errores cuando el usuario escribe
+    function limpiarErrorCampo(campo) {
+        let errorSpan = campo.nextElementSibling;
+        if (errorSpan && errorSpan.classList.contains("error-message")) {
+            errorSpan.remove();
+        }
+    }
+
+    document.querySelectorAll("input, select").forEach(campo => {
+        campo.addEventListener("input", function () {
+            limpiarErrorCampo(this);
+        });
+    });
+
+    document.getElementById('guardarModelo').addEventListener('click', function () {
+        const descripcion = document.getElementById('descripcion');
+        const estado = document.getElementById('estado');
+        let valido = true;
+
+        if (!descripcion.value.trim()) {
+            mostrarErrorCampo(descripcion, "La descripción es obligatoria.");
+            valido = false;
+        }
+
+        if (!estado.value.trim()) {
+            mostrarErrorCampo(estado, "El estado es obligatorio.");
+            valido = false;
+        }
+
+        if (!valido) return;
+
+        fetch('/api/modelo/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                descripcion: descripcion.value.trim(),
+                estado: parseInt(estado.value)
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    mostrarToast('success', data.message);
+                    document.getElementById("crearModeloForm").reset();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('crearModeloModal'));
+                    modal.hide();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    mostrarToast('danger', 'Error al guardar el modelo.');
+                }
+            })
+            .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
+    });
+
+    document.querySelectorAll(".btn-editar").forEach(button => {
+        button.addEventListener("click", function () {
+            const id = this.dataset.id;
+            const descripcion = this.dataset.descripcion;
+            const estado = this.dataset.estado;
+
+            document.getElementById("editDescripcion").value = descripcion;
+            document.getElementById("editEstado").value = estado;
+            document.getElementById("editarModelo").dataset.id = id;
+
+            const modal = new bootstrap.Modal(document.getElementById("editarModeloModal"));
+            modal.show();
+        });
+    });
+
+    document.getElementById("editarModelo").addEventListener("click", function () {
+        const id = this.dataset.id;
+        const descripcion = document.getElementById("editDescripcion");
+        const estado = document.getElementById("editEstado");
+        let valido = true;
+
+        if (!descripcion.value.trim()) {
+            mostrarErrorCampo(descripcion, "La descripción es obligatoria.");
+            valido = false;
+        }
+
+        if (!estado.value.trim()) {
+            mostrarErrorCampo(estado, "El estado es obligatorio.");
+            valido = false;
+        }
+
+        if (!valido) return;
+
+        fetch(`/api/modelo/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                descripcion: descripcion.value.trim(),
+                estado: parseInt(estado.value)
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    mostrarToast('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    mostrarToast('danger', 'Error al actualizar el modelo.');
+                }
+            })
+            .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
+    });
+
+    document.querySelectorAll(".btn-eliminar").forEach(button => {
+        button.addEventListener("click", function () {
+            const id = this.dataset.id;
+            const confirmarBtn = document.getElementById("confirmarEliminar");
+            confirmarBtn.dataset.id = id;
+            const modal = new bootstrap.Modal(document.getElementById("modalConfirmacion"));
+            modal.show();
+
+            confirmarBtn.onclick = function () {
+                fetch(`/api/modelo/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            mostrarToast('success', data.message);
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            mostrarToast('danger', 'Error al eliminar el modelo.');
+                        }
+                    })
+                    .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
+            };
+        });
+    });
+
+    function mostrarToast(tipo, mensaje) {
+        const toastEl = document.getElementById(`toast${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+        toastEl.querySelector('.toast-body').innerText = mensaje;
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    }
+});

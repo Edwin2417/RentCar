@@ -95,10 +95,10 @@ class TipoCombustibleSerializer(serializers.ModelSerializer):
 
 # Serializer para Vehiculo
 class VehiculoSerializer(serializers.ModelSerializer):
-    tipo_vehiculo = TipoVehiculoSerializer(read_only=True)
-    marca = MarcaSerializer(read_only=True)
-    modelo = ModeloSerializer(read_only=True)
-    tipo_combustible = TipoCombustibleSerializer(read_only=True)
+    tipo_vehiculo = serializers.PrimaryKeyRelatedField(queryset=TipoVehiculo.objects.all())
+    marca = serializers.PrimaryKeyRelatedField(queryset=Marca.objects.all())
+    modelo = serializers.PrimaryKeyRelatedField(queryset=Modelo.objects.all())
+    tipo_combustible = serializers.PrimaryKeyRelatedField(queryset=TipoCombustible.objects.all())
     estado = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all())
 
     class Meta:

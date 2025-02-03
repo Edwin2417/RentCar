@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
+from django.core.exceptions import ObjectDoesNotExist
 
 # Importar todos los modelos y serializers necesarios
 from rentCarApp.models import (
@@ -37,31 +38,66 @@ def genericApi(request, model, serializer, id=None):
         objects_serializer = serializer(data=data)
         if objects_serializer.is_valid():
             objects_serializer.save()
-            return JsonResponse({"message": "!Agregado Exitosamente!", "data": objects_serializer.data}, status=201)
+            return JsonResponse({"message": "¡Agregado Exitosamente!", "data": objects_serializer.data}, status=201)
         return JsonResponse({"error": "Error al agregar.", "details": objects_serializer.errors}, status=400)
 
     elif request.method == 'PUT':
         data = JSONParser().parse(request)
+        id = int(id) if id else None  # Asegúrate de que id sea un entero
+
         try:
             obj = model.objects.get(pk=id)
         except model.DoesNotExist:
             return JsonResponse({"error": "Objeto no encontrado"}, status=404)
+
         # Se actualiza el objeto con los nuevos datos
-        objects_serializer = serializer(obj, data=data)
+        objects_serializer = serializer(obj, data=data, partial=True)  # Permite actualizar campos parciales
         if objects_serializer.is_valid():
             objects_serializer.save()
-            return JsonResponse({"message": "!Actualizado Exitosamente!", "data": objects_serializer.data}, status=200)
+            return JsonResponse({"message": "¡Actualizado Exitosamente!", "data": objects_serializer.data}, status=200)
+
         return JsonResponse({"error": "Error al actualizar.", "details": objects_serializer.errors}, status=400)
+
 
     elif request.method == 'DELETE':
         try:
             obj = model.objects.get(pk=id)
             obj.delete()
-            return JsonResponse({"message": "!Eliminado Exitosamente!"}, status=200)
+            return JsonResponse({"message": "¡Eliminado Exitosamente!"}, status=200)
         except model.DoesNotExist:
             return JsonResponse({"error": "Objeto no encontrado"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": f"Error inesperado: {str(e)}"}, status=500)
 
-    return JsonResponse({"error": "Método no permitido."}, status=405)
+
+def validar_datos(data, id=None):
+    required_fields = ["descripcion", "no_chasis", "no_motor", "no_placa", "tipo_vehiculo", "marca", "modelo", "tipo_combustible", "estado"]
+    errores = {}
+
+    # Validación de campos requeridos
+    for field in required_fields:
+        if not data.get(field):
+            errores[field] = [f"El campo {field} es obligatorio."]
+
+    # Validaciones de unicidad (evitar colisión en caso de actualización)
+    if Vehiculo.objects.filter(no_chasis=data.get("no_chasis")).exclude(identificador=id).exists():
+        errores["no_chasis"] = ["Este número de chasis ya está registrado."]
+    if Vehiculo.objects.filter(no_motor=data.get("no_motor")).exclude(identificador=id).exists():
+        errores["no_motor"] = ["Este número de motor ya está registrado."]
+    if Vehiculo.objects.filter(no_placa=data.get("no_placa")).exclude(identificador=id).exists():
+        errores["no_placa"] = ["Este número de placa ya está registrado."]
+
+    # Validación de claves foráneas
+    try:
+        data["tipo_vehiculo"] = TipoVehiculo.objects.get(pk=data["tipo_vehiculo"])
+        data["marca"] = Marca.objects.get(pk=data["marca"])
+        data["modelo"] = Modelo.objects.get(pk=data["modelo"])
+        data["tipo_combustible"] = TipoCombustible.objects.get(pk=data["tipo_combustible"])
+        data["estado"] = Estado.objects.get(pk=data["estado"])
+    except ObjectDoesNotExist as e:
+        return None, {"error": f"Uno de los valores seleccionados no es válido: {str(e)}"}
+
+    return data, errores
 
 
 # API específica para Marca
@@ -79,7 +115,52 @@ def estadoApi(request, id=0):
 # API específica para Vehiculo
 @csrf_exempt
 def vehiculoApi(request, id=0):
+    if request.method in ['POST', 'PUT']:
+        data = JSONParser().parse(request)
+        is_update = request.method == 'PUT'
+        vehiculo = None
+        
+        if is_update:
+            try:
+                vehiculo = Vehiculo.objects.get(pk=id)
+            except Vehiculo.DoesNotExist:
+                return JsonResponse({"success": False, "error": "Vehículo no encontrado."}, status=404)
+        
+        # Validar datos
+        data, errores = validar_datos(data, id if is_update else None)
+        if errores:
+            return JsonResponse({"success": False, "errors": errores}, status=400)
+        
+        if is_update:
+            # Actualizar vehículo
+            vehiculo.descripcion = data["descripcion"]
+            vehiculo.no_chasis = data["no_chasis"]
+            vehiculo.no_motor = data["no_motor"]
+            vehiculo.no_placa = data["no_placa"]
+            vehiculo.tipo_vehiculo = data["tipo_vehiculo"]
+            vehiculo.marca = data["marca"]
+            vehiculo.modelo = data["modelo"]
+            vehiculo.tipo_combustible = data["tipo_combustible"]
+            vehiculo.estado = data["estado"]
+            vehiculo.save()
+            return JsonResponse({"success": True, "message": "Vehículo actualizado exitosamente."}, status=200)
+        
+        # Crear vehículo
+        vehiculo = Vehiculo.objects.create(
+            descripcion=data["descripcion"],
+            no_chasis=data["no_chasis"],
+            no_motor=data["no_motor"],
+            no_placa=data["no_placa"],
+            tipo_vehiculo=data["tipo_vehiculo"],
+            marca=data["marca"],
+            modelo=data["modelo"],
+            tipo_combustible=data["tipo_combustible"],
+            estado=data["estado"]
+        )
+        return JsonResponse({"success": True, "message": "Vehículo creado exitosamente.", "id": vehiculo.identificador}, status=201)
+    
     return genericApi(request, Vehiculo, VehiculoSerializer, id)
+
 
 
 # API específica para RentaDevolucion

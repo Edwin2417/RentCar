@@ -1,0 +1,199 @@
+<!-- Modal para Crear Vehículo -->
+<div class="modal fade" id="crearVehiculoModal" tabindex="-1" aria-labelledby="crearVehiculoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="crearVehiculoModalLabel">Crear Nuevo Vehículo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="crearVehiculoForm">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                
+                    <!-- Descripción -->
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <input type="text" class="form-control" id="descripcion" name="descripcion" required data-nombre="Descripción">
+                    </div>
+                    
+                    <!-- No. Chasis -->
+                    <div class="mb-3">
+                        <label for="no_chasis" class="form-label">No. Chasis</label>
+                        <input type="text" class="form-control" id="no_chasis" name="no_chasis" required data-nombre="Número de Chasis">
+                        <div class="invalid-feedback">Este número de chasis ya está registrado.</div>
+                    </div>
+                    
+                    <!-- No. Motor -->
+                    <div class="mb-3">
+                        <label for="no_motor" class="form-label">No. Motor</label>
+                        <input type="text" class="form-control" id="no_motor" name="no_motor" required data-nombre="Número de Motor">
+                        <div class="invalid-feedback">Este número de motor ya está registrado.</div>
+                    </div>
+                    
+                    <!-- No. Placa -->
+                    <div class="mb-3">
+                        <label for="no_placa" class="form-label">No. Placa</label data-nombre="Número de Placa">
+                        <input type="text" class="form-control" id="no_placa" name="no_placa" required data-nombre="Número de Placa">
+                        <div class="invalid-feedback">Esta placa ya está registrada.</div>
+                    </div>
+                    
+                    <!-- Tipo de Vehículo -->
+                    <div class="mb-3">
+                        <label for="tipo_vehiculo" class="form-label">Tipo de Vehículo</label>
+                        <select name="tipo_vehiculo" id="tipoVehiculo" class="form-control" required data-nombre="Tipo de Vehículo">
+                            {% for tipo in tipos_vehiculo %}
+                                <option value="{{ tipo.identificador }}">{{ tipo.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Marca -->
+                    <div class="mb-3">
+                        <label for="marca" class="form-label">Marca</label>
+                        <select class="form-control" id="marca" name="marca" required data-nombre="Marca">
+                            {% for marca in marcas %}
+                                <option value="{{ marca.identificador }}">{{ marca.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Modelo -->
+                    <div class="mb-3">
+                        <label for="modelo" class="form-label">Modelo</label>
+                        <select class="form-control" id="modelo" name="modelo" required data-nombre="Modelo">
+                            {% for modelo in modelos %}
+                                <option value="{{ modelo.identificador }}">{{ modelo.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Tipo de Combustible -->
+                    <div class="mb-3">
+                        <label for="tipo_combustible" class="form-label">Tipo de Combustible</label>
+                        <select class="form-control" id="tipo_combustible" name="tipo_combustible" required data-nombre="Tipo de Combustible">
+                            {% for tipo in tipos_combustible %}
+                                <option value="{{ tipo.identificador }}">{{ tipo.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Estado -->
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control" id="estado" name="estado" required data-nombre="Estado">
+                            {% for estado in estados %}
+                                <option value="{{ estado.identificador }}">{{ estado.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="guardarVehiculo">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal para Editar Vehículo -->
+<div class="modal fade" id="editarVehiculoModal" tabindex="-1" aria-labelledby="editarVehiculoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarVehiculoModalLabel">Editar Vehículo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editarVehiculoForm">
+                    <input type="hidden" id="editId">
+
+                    <div class="mb-3">
+                        <label for="editDescripcion" class="form-label">Descripción</label>
+                        <input type="text" class="form-control" id="editDescripcion" required data-nombre="Descripción">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editNoChasis" class="form-label">No. Chasis</label>
+                        <input type="text" class="form-control" name="no_chasis" id="editNoChasis" required data-nombre="Número de Chasis">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editNoMotor" class="form-label">No. Motor</label>
+                        <input type="text" class="form-control" name="no_motor" id="editNoMotor" required data-nombre="Número de Motor">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editNoPlaca" class="form-label">No. Placa</label>
+                        <input type="text" class="form-control" name="no_placa" id="editNoPlaca" required data-nombre="Número de Placa">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editTipoVehiculo" class="form-label">Tipo de Vehículo</label>
+                        <select class="form-control" id="editTipoVehiculo" required data-nombre="Tipo de Vehículo">
+                            {% for tipo in tipos_vehiculo %}
+                                <option value="{{ tipo.identificador }}">{{ tipo.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editMarca" class="form-label">Marca</label>
+                        <select class="form-control" id="editMarca" required data-nombre="Marca">
+                            {% for marca in marcas %}
+                                <option value="{{ marca.identificador }}">{{ marca.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editModelo" class="form-label">Modelo</label>
+                        <select class="form-control" id="editModelo" required data-nombre="Modelo">
+                            {% for modelo in modelos %}
+                                <option value="{{ modelo.identificador }}">{{ modelo.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTipoCombustible" class="form-label">Tipo de Combustible</label>
+                        <select class="form-control" id="editTipoCombustible" required data-nombre="Tipo de Combustible">
+                            {% for tipo in tipos_combustible %}
+                                <option value="{{ tipo.identificador }}">{{ tipo.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEstado" class="form-label">Estado</label>
+                        <select class="form-control" id="editEstado" required data-nombre="Estado">
+                            {% for estado in estados %}
+                            <option value="{{ estado.identificador }}">{{ estado.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-warning" id="editarVehiculo">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal para Eliminar Vehículo -->
+<div class="modal fade" id="eliminarVehiculoModal" tabindex="-1" aria-labelledby="eliminarVehiculoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eliminarVehiculoModalLabel">Eliminar Vehículo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este vehículo?</p>
+                <input type="hidden" id="deleteId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-danger" id="confirmarEliminarVehiculo">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
