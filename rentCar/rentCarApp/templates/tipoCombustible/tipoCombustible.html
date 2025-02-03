@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Tipos de Combustible | Indexing Car Rental{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-white">Tipos de Combustible</h2>
+        <!-- Botón para abrir el modal -->
+        <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
+            data-bs-target="#creartipoCombustibleModal">Crear Tipo de Combustible</a>
+    </div>
+
+    <table class="table table-hover align-middle" style="background-color: #121212; color: white; width: 100%;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <th class="py-3">ID</th>
+                <th class="py-3">Descripción</th>
+                <th class="py-3">Estado</th>
+                <th class="py-3">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tipoCombustible in tipoCombustibles %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td class="py-3">{{ tipoCombustible.identificador }}</td>
+                <td class="py-3">{{ tipoCombustible.descripcion }}</td>
+                <td class="py-3">
+                    {% for estado in estados %}
+                        {% if estado.identificador == tipoCombustible.estado %}
+                            <span class="badge bg-{% if estado.identificador == 1 %}success{% else %}danger{% endif %} rounded-pill px-3 py-2">{{ estado.descripcion }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td class="py-3">
+                    <div class="acciones-btns">
+                        <button class="btn btn-warning text-white btn-editar" data-id="{{ tipoCombustible.identificador }}"
+                            data-descripcion="{{ tipoCombustible.descripcion }}" data-estado="{{ tipoCombustible.estado }}">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button class="btn btn-danger text-white btn-eliminar" data-id="{{ tipoCombustible.identificador }}">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td colspan="4" class="text-center py-4">No hay Tipos de Combustible disponibles</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include "paginator.html" %}
+
+{% include "toasts.html" %}
+
+{% include "tipoCombustible/tipoCombustible_modals.html" %}
+
+<script src="{% static 'js/tipoCombustible.js' %}"></script>
+
+{% endblock %}

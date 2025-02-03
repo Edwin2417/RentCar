@@ -1,12 +1,22 @@
 from django.shortcuts import render
-from django.http import JsonResponse
-from rentCarApp.models import Marca
-from rentCarApp.serializers import MarcaSerializer
+from django.core.paginator import Paginator
+from rentCarApp.models import Marca, Estado
+from rentCarApp.serializers import MarcaSerializer, EstadoSerializer
 
 def marcasView(request):
-    # Obtiene todas las marcas de la base de datos
-    marcas = Marca.objects.all()
-    # Serializa los datos de las marcas
-    serializer = MarcaSerializer(marcas, many=True)
-    # Renderiza el template 'marcas.html' y pasa los datos como contexto
-    return render(request, 'marcas.html', {'marcas': serializer.data})
+    marcas_list = Marca.objects.all().order_by('identificador')
+    paginator = Paginator(marcas_list, 5)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    serializer = MarcaSerializer(page_obj, many=True)
+
+    estados = Estado.objects.all().order_by('descripcion')  # Obtener los estados
+    estados_serializer = EstadoSerializer(estados, many=True)  # Serializarlos
+
+    return render(request, 'marcas/marcas.html', {
+        'marcas': serializer.data,
+        'page_obj': page_obj,
+        'estados': estados_serializer.data  # Pasar estados a la plantilla
+    })
