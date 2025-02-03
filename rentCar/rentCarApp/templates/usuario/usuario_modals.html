@@ -1,0 +1,126 @@
+<!-- Modal para Crear Usuario -->
+<div class="modal fade" id="crearUsuarioModal" tabindex="-1" aria-labelledby="crearUsuarioModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="crearUsuarioModalLabel">Crear Nuevo Usuario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="crearUsuarioForm">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+                    <!-- Nombre -->
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario"
+                            data-nombre="Nombre de usuario" required>
+                    </div>
+
+                    <!-- Cédula -->
+                    <div class="mb-3">
+                        <label for="contrasena" class="form-label">Contraseña</label>
+                        <input type="text" class="form-control" id="contrasena" name="contrasena" data-nombre="Contraseña" required>
+                    </div>
+
+                    <!-- Tipo de Usuario -->
+                    <div class="mb-3">
+                        <label for="rol" class="form-label">Rol</label>
+                        <select class="form-control" id="rol" name="rol" data-nombre="Rol" required>
+                            {% for rol in roles %}
+                            <option value="{{ rol.identificador }}">{{ rol.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control" id="estado" name="estado" data-nombre="Estado" required>
+                            {% for estado in estados %}
+                            <option value="{{ estado.identificador }}">{{ estado.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="guardarUsuario">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Usuario -->
+<div class="modal fade" id="editarUsuarioModal" tabindex="-1" aria-labelledby="editarUsuarioModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarUsuarioModalLabel">Editar Usuario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editarUsuarioForm">
+                    <input type="hidden" id="editId">
+                    <div class="mb-3">
+                        <label for="editNombre" class="form-label">Nombre de usuario</label>
+                        <input type="text" class="form-control" name="nombre_usuario" id="editNombre"
+                            data-nombre="Nombre de usuario" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editContrasena" class="form-label">Contraseña</label>
+                        <input type="text" class="form-control" name="contrasena" id="editContrasena" data-nombre="Contraseña"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editRoles" class="form-label">Roles</label>
+                        <select class="form-control" id="editRoles" name="rol" data-nombre="Tipo de Usuario" required>
+                            {% for rol in roles %}
+                            <option value="{{ rol.identificador }}">{{ rol.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEstado" class="form-label">Estado</label>
+                        <select class="form-control" id="editEstado" name="estado" data-nombre="Estado" required>
+                            {% for estado in estados %}
+                            <option value="{{ estado.identificador }}">{{ estado.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-warning" id="editarUsuario">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Eliminar Usuario -->
+<div class="modal fade" id="eliminarUsuarioModal" tabindex="-1" aria-labelledby="eliminarUsuarioModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eliminarUsuarioModalLabel">Eliminar Usuario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+                <input type="hidden" id="deleteId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-danger" id="confirmarEliminarUsuario">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>

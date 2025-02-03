@@ -6,6 +6,7 @@ from rentCarApp.view.modelos_views import modelosView
 from rentCarApp.view.tipoVehiculo_views import tipoVehiculoView
 from rentCarApp.view.tipoCombustible_views import tipoCombustibleView
 from rentCarApp.view.vehiculos_views import vehiculoView
+from rentCarApp.view.usuario_views import usuarioView
 
 urlpatterns = [
     path('', login_view, name='login'),  # Página de inicio de sesión
@@ -17,4 +18,5 @@ urlpatterns = [
     path('tipoVehiculo/', tipoVehiculoView, name='tipoVehiculoView'),
     path('tipoCombustible/', tipoCombustibleView, name='tipoCombustibleView'),
     path('vehiculos/', vehiculoView, name='vehiculoView'),
+    path('usuarios/', usuarioView, name='usuarioView'),
 ]

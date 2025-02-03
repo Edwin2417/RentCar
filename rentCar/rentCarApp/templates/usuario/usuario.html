@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Usuarios | Indexing Car Rental{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-white">Usuarios</h2>
+        <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
+            data-bs-target="#crearUsuarioModal">Crear Usuario</a>
+    </div>
+
+    <table class="table table-hover align-middle" style="background-color: #121212; color: white; width: 100%;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <th class="py-3">ID</th>
+                <th class="py-3">Nombre de Usuario</th>
+                <th class="py-3">Contraseña</th>
+                <th class="py-3">Rol</th>
+                <th class="py-3">Estado</th>
+                <th class="py-3">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td class="py-3">{{ usuario.identificador }}</td>
+                <td class="py-3">{{ usuario.nombre_usuario }}</td>
+                <td class="py-3">{{ usuario.contrasena }}</td>
+                <!-- Rol -->
+                <td class="py-3">
+                    {% for rol in roles %}
+                        {% if rol.identificador == usuario.rol %}
+                            {{ rol.descripcion }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                
+                <!-- Estado -->
+                <td class="py-3">
+                    {% for estado in estados %}
+                        {% if estado.identificador == usuario.estado %}
+                            <span class="badge bg-{% if estado.identificador == 1 %}success{% else %}danger{% endif %} rounded-pill px-3 py-2">{{ estado.descripcion }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                
+                <td class="py-3">
+                    <div class="acciones-btns">
+                        <button class="btn btn-warning text-white btn-editar"
+                            data-id="{{ usuario.identificador }}"
+                            data-nombre_usuario="{{ usuario.nombre_usuario }}"
+                            data-contrasena="{{ usuario.contrasena }}"
+                            data-rol="{{ usuario.rol }}"
+                            data-estado="{{ usuario.estado }}">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button class="btn btn-danger text-white btn-eliminar" data-id="{{ usuario.identificador }}">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td colspan="5" class="text-center py-4">No hay usuarios disponibles</td>
+            </tr>
+            {% endfor %}
+        </tbody>        
+    </table>
+</div>
+
+{% include "paginator.html" %}
+{% include "toasts.html" %}
+{% include "usuario/usuario_modals.html" %}
+
+<script src="{% static 'js/usuario.js' %}"></script>
+
+{% endblock %}

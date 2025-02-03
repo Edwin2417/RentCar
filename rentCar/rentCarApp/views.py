@@ -70,6 +70,20 @@ def genericApi(request, model, serializer, id=None):
             return JsonResponse({"error": f"Error inesperado: {str(e)}"}, status=500)
 
 
+# API específica para Marca
+@csrf_exempt
+def marcaApi(request, id=0):
+    return genericApi(request, Marca, MarcaSerializer, id)
+
+
+# API específica para Estado
+@csrf_exempt
+def estadoApi(request, id=0):
+    return genericApi(request, Estado, EstadoSerializer, id)
+
+
+# API específica para Vehiculo
+
 def validar_datos(data, id=None):
     required_fields = ["descripcion", "no_chasis", "no_motor", "no_placa", "tipo_vehiculo", "marca", "modelo", "tipo_combustible", "estado"]
     errores = {}
@@ -99,20 +113,6 @@ def validar_datos(data, id=None):
 
     return data, errores
 
-
-# API específica para Marca
-@csrf_exempt
-def marcaApi(request, id=0):
-    return genericApi(request, Marca, MarcaSerializer, id)
-
-
-# API específica para Estado
-@csrf_exempt
-def estadoApi(request, id=0):
-    return genericApi(request, Estado, EstadoSerializer, id)
-
-
-# API específica para Vehiculo
 @csrf_exempt
 def vehiculoApi(request, id=0):
     if request.method in ['POST', 'PUT']:
@@ -175,10 +175,70 @@ def rolApi(request, id=0):
     return genericApi(request, Rol, RolSerializer, id)
 
 
-# API específica para Usuario
+def validar_usuario_datos(data, id=None):
+    errores = {}
+
+    # Validar campos requeridos
+    if not data.get("nombre_usuario"):
+        errores["nombre_usuario"] = ["El campo nombre_usuario es obligatorio."]
+    if not data.get("contrasena"):
+        errores["contrasena"] = ["El campo contrasena es obligatorio."]
+    if not data.get("rol"):
+        errores["rol"] = ["El campo rol es obligatorio."]
+    if not data.get("estado"):
+        errores["estado"] = ["El campo estado es obligatorio."]
+
+    # Validación de unicidad del nombre de usuario
+    if Usuario.objects.filter(nombre_usuario=data.get("nombre_usuario")).exclude(identificador=id).exists():
+        errores["nombre_usuario"] = ["Este nombre de usuario ya está registrado."]
+
+    # Validación de claves foráneas
+    try:
+        data["rol"] = Rol.objects.get(pk=data["rol"])
+        data["estado"] = Estado.objects.get(pk=data["estado"])
+    except ObjectDoesNotExist as e:
+        return None, {"error": f"Uno de los valores seleccionados no es válido: {str(e)}"}
+
+    return data, errores
+
 @csrf_exempt
 def usuarioApi(request, id=0):
+    if request.method in ['POST', 'PUT']:
+        data = JSONParser().parse(request)
+        is_update = request.method == 'PUT'
+        usuario = None
+        
+        if is_update:
+            try:
+                usuario = Usuario.objects.get(pk=id)
+            except Usuario.DoesNotExist:
+                return JsonResponse({"success": False, "error": "Usuario no encontrado."}, status=404)
+        
+        # Validar datos
+        data, errores = validar_usuario_datos(data, id if is_update else None)
+        if errores:
+            return JsonResponse({"success": False, "errors": errores}, status=400)
+
+        if is_update:
+            # Actualizar usuario
+            usuario.nombre_usuario = data["nombre_usuario"]
+            usuario.contrasena = data["contrasena"]
+            usuario.rol = data["rol"]
+            usuario.estado = data["estado"]
+            usuario.save()
+            return JsonResponse({"success": True, "message": "Usuario actualizado exitosamente."}, status=200)
+
+        # Crear usuario
+        usuario = Usuario.objects.create(
+            nombre_usuario=data["nombre_usuario"],
+            contrasena=data["contrasena"],
+            rol=data["rol"],
+            estado=data["estado"]
+        )
+        return JsonResponse({"success": True, "message": "Usuario creado exitosamente.", "id": usuario.identificador}, status=201)
+
     return genericApi(request, Usuario, UsuarioSerializer, id)
+
 
 
 # API específica para Empleado
