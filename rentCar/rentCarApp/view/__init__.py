@@ -6,6 +6,6 @@ from .modelos_views import modelosView
 from .tipoVehiculo_views import tipoVehiculoView
 from .tipoCombustible_views import tipoCombustibleView
 from .vehiculos_views import vehiculoView
-from .vehiculos_views import verificarVehiculo
+from .usuario_views import usuarioView
 
 # Ahora puedes importar directamente desde rentCarApp.views
