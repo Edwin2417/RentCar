@@ -1,6 +1,8 @@
 # views.py
 from django.shortcuts import redirect, render
+from rentCarApp.decorators import login_required_custom  # Importa el decorador
 
+@login_required_custom
 def home_view(request):
     if not request.session.get('user_id'):
         return redirect('login')  # Redirige al login si no hay sesión

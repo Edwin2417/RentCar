@@ -41,6 +41,7 @@
                     <div class="mb-3">
                         <label for="tipo_vehiculo" class="form-label">Tipo de Vehículo</label>
                         <select name="tipo_vehiculo" id="tipoVehiculo" class="form-control" required data-nombre="Tipo de Vehículo">
+                            <option value="" disabled selected>Seleccione un Tipo de Vehículo</option>
                             {% for tipo in tipos_vehiculo %}
                                 <option value="{{ tipo.identificador }}">{{ tipo.descripcion }}</option>
                             {% endfor %}
@@ -51,6 +52,7 @@
                     <div class="mb-3">
                         <label for="marca" class="form-label">Marca</label>
                         <select class="form-control" id="marca" name="marca" required data-nombre="Marca">
+                            <option value="" disabled selected>Seleccione una Marca</option>
                             {% for marca in marcas %}
                                 <option value="{{ marca.identificador }}">{{ marca.descripcion }}</option>
                             {% endfor %}
@@ -61,6 +63,7 @@
                     <div class="mb-3">
                         <label for="modelo" class="form-label">Modelo</label>
                         <select class="form-control" id="modelo" name="modelo" required data-nombre="Modelo">
+                            <option value="" disabled selected>Seleccione un Modelo</option>
                             {% for modelo in modelos %}
                                 <option value="{{ modelo.identificador }}">{{ modelo.descripcion }}</option>
                             {% endfor %}
@@ -71,6 +74,7 @@
                     <div class="mb-3">
                         <label for="tipo_combustible" class="form-label">Tipo de Combustible</label>
                         <select class="form-control" id="tipo_combustible" name="tipo_combustible" required data-nombre="Tipo de Combustible">
+                            <option value="" disabled selected>Seleccione un Tipo de Combustible</option>
                             {% for tipo in tipos_combustible %}
                                 <option value="{{ tipo.identificador }}">{{ tipo.descripcion }}</option>
                             {% endfor %}

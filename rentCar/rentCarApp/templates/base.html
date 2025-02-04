@@ -22,7 +22,8 @@
         }
 
         .toast {
-            z-index: 1100 !important; /* Mayor que el modal (por defecto 1050) */
+            z-index: 1100 !important;
+            /* Mayor que el modal (por defecto 1050) */
         }
 
 
@@ -110,47 +111,48 @@
             font-family: 'Poppins', sans-serif;
             z-index: 5;
         }
+
         .table th,
-    .table td {
-        text-align: center;
-        vertical-align: middle;
-    }
+        .table td {
+            text-align: center;
+            vertical-align: middle;
+        }
 
-    .btn {
-        transition: all 0.2s ease-in-out;
-    }
+        .btn {
+            transition: all 0.2s ease-in-out;
+        }
 
-    .btn:hover {
-        transform: scale(1.1);
-    }
+        .btn:hover {
+            transform: scale(1.1);
+        }
 
-    .table-hover tbody tr:hover {
-        background-color: rgba(255, 255, 255, 0.2) !important;
-    }
+        .table-hover tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+        }
 
-    .table-hover tbody tr:hover td {
-        color: white !important;
-    }
+        .table-hover tbody tr:hover td {
+            color: white !important;
+        }
 
-    .badge {
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
+        .badge {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
 
-    .acciones-btns {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-    }
+        .acciones-btns {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
 
-    .acciones-btns .btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+        .acciones-btns .btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -163,6 +165,7 @@
 
     <!-- Sidebar Menu -->
     <div class="side-menu" id="side-menu">
+        {% if request.user_role == 1 %}
         <a href="{% url 'home' %}">Inicio</a>
         <a href="{% url 'marcasView' %}">Marcas</a>
         <a href="{% url 'modelosView' %}">Modelos</a>
@@ -170,8 +173,9 @@
         <a href="{% url 'tipoCombustibleView' %}">Tipos de Combustible</a>
         <a href="{% url 'vehiculoView' %}">Vehículos</a>
         <a href="{% url 'usuarioView' %}">Usuarios</a>
-        <a href="#">Clientes</a>
-        <a href="#">Empleados</a>
+        <a href="{% url 'clienteView' %}">Clientes</a>
+        <a href="{% url 'empleadoView' %}">Empleados</a>
+        {% endif %}
         <a href="#">Inspección</a>
         <a href="#">Renta y Devolución</a>
 
@@ -244,7 +248,7 @@
                 ?.split('=')[1];
         }
     </script>
-    
+
 </body>
 
 </html>

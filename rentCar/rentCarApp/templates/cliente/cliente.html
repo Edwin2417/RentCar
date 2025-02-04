@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes | Indexing Car Rental{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-white">Clientes</h2>
+        <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
+            data-bs-target="#crearClienteModal">Crear Cliente</a>
+    </div>
+
+    <table class="table table-hover align-middle" style="background-color: #121212; color: white; width: 100%;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <th class="py-3">ID</th>
+                <th class="py-3">Nombre</th>
+                <th class="py-3">Cédula</th>
+                <th class="py-3">N° Tarjeta CR</th>
+                <th class="py-3">Límite de Crédito</th>
+                <th class="py-3">Tipo de Persona</th>
+                <th class="py-3">Estado</th>
+                <th class="py-3">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td class="py-3">{{ cliente.identificador }}</td>
+                <td class="py-3">{{ cliente.nombre }}</td>
+                <td class="py-3">{{ cliente.cedula }}</td>
+                <td class="py-3">{{ cliente.no_tarjeta_cr }}</td>
+                <td class="py-3">RD$ {{ cliente.limite_credito }}</td>
+                <td class="py-3">{{ cliente.tipo_persona }}</td>
+                
+                <!-- Estado -->
+                <td class="py-3">
+                    {% for estado in estados %}
+                        {% if estado.identificador == cliente.estado %}
+                            <span class="badge bg-{% if estado.identificador == 1 %}success{% else %}danger{% endif %} rounded-pill px-3 py-2">{{ estado.descripcion }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                
+                <td class="py-3">
+                    <div class="acciones-btns">
+                        <button class="btn btn-warning text-white btn-editar"
+                            data-id="{{ cliente.identificador }}"
+                            data-nombre="{{ cliente.nombre }}"
+                            data-cedula="{{ cliente.cedula }}"
+                            data-no_tarjeta_cr="{{ cliente.no_tarjeta_cr }}"
+                            data-limite_credito="{{ cliente.limite_credito }}"
+                            data-tipo_persona="{{ cliente.tipo_persona }}"
+                            data-estado="{{ cliente.estado }}">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button class="btn btn-danger text-white btn-eliminar" data-id="{{ cliente.identificador }}">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td colspan="8" class="text-center py-4">No hay clientes disponibles</td>
+            </tr>
+            {% endfor %}
+        </tbody>        
+    </table>
+</div>
+
+{% include "paginator.html" %}
+{% include "toasts.html" %}
+{% include "cliente/cliente_modals.html" %}
+
+<script src="{% static 'js/cliente.js' %}"></script>
+
+{% endblock %}

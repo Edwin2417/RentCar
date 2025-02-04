@@ -1,0 +1,157 @@
+<!-- Modal para Crear Empleado -->
+<div class="modal fade" id="crearEmpleadoModal" tabindex="-1" aria-labelledby="crearEmpleadoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="crearEmpleadoModalLabel">Crear Nuevo Empleado</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="crearEmpleadoForm">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" data-nombre="Nombre" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="cedula" class="form-label">Cédula</label>
+                        <input type="text" class="form-control" id="cedula" name="cedula" data-nombre="Cédula" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tanda_labor" class="form-label">Tanda Laboral</label>
+                        <select class="form-control" id="tanda_labor" name="tanda_labor" data-nombre="Tanda Laboral"required>
+                            <option value="" disabled selected>Seleccione una tanda</option>
+                            <option value="Matutina">Matutina</option>
+                            <option value="Vespertina">Vespertina</option>
+                            <option value="Nocturna">Nocturna</option>
+                        </select>
+                    </div>                    
+                    
+                    <div class="mb-3">
+                        <label for="porciento_comision" class="form-label">Porciento Comisión</label>
+                        <input type="number" class="form-control" id="porciento_comision" name="porciento_comision" data-nombre="Porciento Comisión" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="fecha_ingreso" class="form-label">Fecha de Ingreso</label>
+                        <input type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" data-nombre="Fecha de Ingreso" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label">Usuario</label>
+                        <select class="form-control" id="usuario" name="usuario" data-nombre="Usuario" required>
+                            <option value="" disabled selected>Seleccione un usuario</option>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.identificador }}">{{ usuario.nombre_usuario }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control" id="estado" name="estado" data-nombre="Estado" required>
+                            {% for estado in estados %}
+                            <option value="{{ estado.identificador }}">{{ estado.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="guardarEmpleado">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Empleado -->
+<div class="modal fade" id="editarEmpleadoModal" tabindex="-1" aria-labelledby="editarEmpleadoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarEmpleadoModalLabel">Editar Empleado</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editarEmpleadoForm">
+                    <input type="hidden" id="editId">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    
+                    <div class="mb-3">
+                        <label for="editNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editNombre" name="nombre" data-nombre="Nombre" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editCedula" class="form-label">Cédula</label>
+                        <input type="text" class="form-control" id="editCedula" name="cedula" data-nombre="Cédula" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTanda" class="form-label">Tanda Laboral</label>
+                        <select class="form-control" id="editTanda" name="tanda_labor" required>
+                            <option value="Matutina">Matutina</option>
+                            <option value="Vespertina">Vespertina</option>
+                            <option value="Nocturna">Nocturna</option>
+                        </select>
+                    </div>                    
+                    
+                    <div class="mb-3">
+                        <label for="editPorciento" class="form-label">Porciento Comisión</label>
+                        <input type="number" class="form-control" id="editPorciento" name="porciento_comision" data-nombre="Porciento Comisión" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editFecha" class="form-label">Fecha de Ingreso</label>
+                        <input type="date" class="form-control" id="editFecha" name="fecha_ingreso" data-nombre="Fecha de Ingreso" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editUsuario" class="form-label">Usuario</label>
+                        <select class="form-control" id="editUsuario" name="usuario" data-nombre="Usuario" required>
+                            <option value="" disabled selected>Seleccione un usuario</option>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.identificador }}">{{ usuario.nombre_usuario }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEstado" class="form-label">Estado</label>
+                        <select class="form-control" id="editEstado" name="estado" data-nombre="Estado" required>
+                            {% for estado in estados %}
+                            <option value="{{ estado.identificador }}">{{ estado.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-warning" id="editarEmpleado">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Eliminar Empleado -->
+<div class="modal fade" id="eliminarEmpleadoModal" tabindex="-1" aria-labelledby="eliminarEmpleadoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eliminarEmpleadoModalLabel">Eliminar Empleado</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este empleado?</p>
+                <input type="hidden" id="deleteId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-danger" id="confirmarEliminarEmpleado">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>

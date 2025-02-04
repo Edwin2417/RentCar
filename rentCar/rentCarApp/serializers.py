@@ -40,7 +40,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 # Serializer para Empleado
 class EmpleadoSerializer(serializers.ModelSerializer):
-    usuario = UsuarioSerializer(read_only=True)  # Detalle del usuario relacionado
+    usuario = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all()) # Detalle del usuario relacionado
     estado = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all())  # Solo texto del estado
 
     class Meta:

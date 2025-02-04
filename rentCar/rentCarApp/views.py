@@ -3,6 +3,9 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
+import re
+from django.utils.dateparse import parse_date
+from datetime import datetime
 
 # Importar todos los modelos y serializers necesarios
 from rentCarApp.models import (
@@ -241,16 +244,183 @@ def usuarioApi(request, id=0):
 
 
 
-# API específica para Empleado
+def validar_empleado_datos(data, id=None):
+    errores = {}
+
+    # Expresión regular para validar cédula
+    cedula_regex = r'^\d{3}-\d{7}-\d{1}$'  # Formato: 123-4567890-1
+
+    # Validar campos requeridos
+    if not data.get("nombre"):
+        errores["nombre"] = ["El campo nombre es obligatorio."]
+    
+    if not data.get("cedula"):
+        errores["cedula"] = ["El campo cédula es obligatorio."]
+    elif not re.match(cedula_regex, data["cedula"]):
+        errores["cedula"] = ["La cédula debe estar en el formato ###-#######-#."]
+    
+    if not data.get("tanda_labor"):
+        errores["tanda_labor"] = ["El campo tanda de labor es obligatorio."]
+    
+    if not data.get("porciento_comision"):
+        errores["porciento_comision"] = ["El campo porcentaje de comisión es obligatorio."]
+    
+    if not data.get("fecha_ingreso"):
+        errores["fecha_ingreso"] = ["El campo fecha de ingreso es obligatorio."]
+    else:
+        fecha_ingreso = parse_date(data["fecha_ingreso"])
+        if not fecha_ingreso or fecha_ingreso > datetime.today().date():
+            errores["fecha_ingreso"] = ["La fecha de ingreso no puede ser mayor a la fecha actual."]
+    
+    if not data.get("usuario"):
+        errores["usuario"] = ["El campo usuario es obligatorio."]
+    
+    if not data.get("estado"):
+        errores["estado"] = ["El campo estado es obligatorio."]
+
+    # Validación de unicidad de la cédula
+    if Empleado.objects.filter(cedula=data.get("cedula")).exclude(identificador=id).exists():
+        errores["cedula"] = ["Esta cédula ya está registrada."]
+    
+    return data, errores
+
 @csrf_exempt
 def empleadoApi(request, id=0):
+    if request.method in ['POST', 'PUT']:
+        data = JSONParser().parse(request)
+        is_update = request.method == 'PUT'
+        empleado = None
+
+        if is_update:
+            try:
+                empleado = Empleado.objects.get(pk=id)
+            except Empleado.DoesNotExist:
+                return JsonResponse({"success": False, "error": "Empleado no encontrado."}, status=404)
+
+        # Validar datos
+        data, errores = validar_empleado_datos(data, id if is_update else None)
+        if errores:
+            return JsonResponse({"success": False, "errors": errores}, status=400)
+
+        # Obtener instancia de Estado
+        try:
+            estado = Estado.objects.get(pk=data["estado"])
+        except ObjectDoesNotExist:
+            return JsonResponse({"success": False, "error": "El estado seleccionado no es válido."}, status=400)
+
+        if is_update:
+            # Actualizar empleado
+            empleado.nombre = data["nombre"]
+            empleado.cedula = data["cedula"]
+            empleado.tanda_labor = data["tanda_labor"]
+            empleado.porciento_comision = data["porciento_comision"]
+            empleado.fecha_ingreso = data["fecha_ingreso"]
+            empleado.usuario_id = data["usuario"]
+            empleado.estado = estado  # Asigna la instancia correcta
+            empleado.save()
+            return JsonResponse({"success": True, "message": "Empleado actualizado exitosamente."}, status=200)
+
+        # Crear empleado
+        empleado = Empleado.objects.create(
+            nombre=data["nombre"],
+            cedula=data["cedula"],
+            tanda_labor=data["tanda_labor"],
+            porciento_comision=data["porciento_comision"],
+            fecha_ingreso=data["fecha_ingreso"],
+            usuario_id=data["usuario"],
+            estado=estado  # Asigna la instancia correcta
+        )
+        return JsonResponse({"success": True, "message": "Empleado creado exitosamente.", "id": empleado.pk}, status=201)
+
     return genericApi(request, Empleado, EmpleadoSerializer, id)
 
 
-# API específica para Cliente
+def validar_cliente_datos(data, id=None):
+    errores = {}
+
+    # Expresiones regulares para validar el formato
+    cedula_regex = r'^\d{3}-\d{7}-\d{1}$'  # Formato: 123-4567890-1
+    tarjeta_regex = r'^\d{4}-\d{4}-\d{4}-\d{4}$'  # Formato: 1234-5678-9123-4567
+
+    # Validar campos requeridos
+    if not data.get("nombre"):
+        errores["nombre"] = ["El campo nombre es obligatorio."]
+    if not data.get("cedula"):
+        errores["cedula"] = ["El campo cédula es obligatorio."]
+    elif not re.match(cedula_regex, data["cedula"]):  # Verifica el formato de la cédula
+        errores["cedula"] = ["La cédula debe estar en el formato ###-#######-#."]
+    
+    if not data.get("no_tarjeta_cr"):
+        errores["no_tarjeta_cr"] = ["El campo número de tarjeta de crédito es obligatorio."]
+    elif not re.match(tarjeta_regex, data["no_tarjeta_cr"]):  # Verifica el formato de la tarjeta
+        errores["no_tarjeta_cr"] = ["El número de tarjeta debe estar en el formato ####-####-####-####."]
+    
+    if not data.get("limite_credito"):
+        errores["limite_credito"] = ["El campo límite de crédito es obligatorio."]
+    if not data.get("tipo_persona"):
+        errores["tipo_persona"] = ["El campo tipo de persona es obligatorio."]
+    if not data.get("estado"):
+        errores["estado"] = ["El campo estado es obligatorio."]
+
+    # Validación de unicidad de la cédula
+    if Cliente.objects.filter(cedula=data.get("cedula")).exclude(identificador=id).exists():
+        errores["cedula"] = ["Esta cédula ya está registrada."]
+    
+    # Validación de unicidad del número de tarjeta de crédito
+    if Cliente.objects.filter(no_tarjeta_cr=data.get("no_tarjeta_cr")).exclude(identificador=id).exists():
+        errores["no_tarjeta_cr"] = ["Este número de tarjeta ya está registrado."]
+
+    return data, errores
+
+
 @csrf_exempt
 def clienteApi(request, id=0):
+    if request.method in ['POST', 'PUT']:
+        data = JSONParser().parse(request)
+        is_update = request.method == 'PUT'
+        cliente = None
+
+        if is_update:
+            try:
+                cliente = Cliente.objects.get(pk=id)
+            except Cliente.DoesNotExist:
+                return JsonResponse({"success": False, "error": "Cliente no encontrado."}, status=404)
+
+        # Validar datos
+        data, errores = validar_cliente_datos(data, id if is_update else None)
+        if errores:
+            return JsonResponse({"success": False, "errors": errores}, status=400)
+
+        # Obtener instancia de Estado
+        try:
+            estado = Estado.objects.get(pk=data["estado"])
+        except ObjectDoesNotExist:
+            return JsonResponse({"success": False, "error": "El estado seleccionado no es válido."}, status=400)
+
+        if is_update:
+            # Actualizar cliente
+            cliente.nombre = data["nombre"]
+            cliente.cedula = data["cedula"]
+            cliente.no_tarjeta_cr = data["no_tarjeta_cr"]
+            cliente.limite_credito = data["limite_credito"]
+            cliente.tipo_persona = data["tipo_persona"]
+            cliente.estado = estado  # Asigna la instancia correcta
+            cliente.save()
+            return JsonResponse({"success": True, "message": "Cliente actualizado exitosamente."}, status=200)
+
+        # Crear cliente
+        cliente = Cliente.objects.create(
+            nombre=data["nombre"],
+            cedula=data["cedula"],
+            no_tarjeta_cr=data["no_tarjeta_cr"],
+            limite_credito=data["limite_credito"],
+            tipo_persona=data["tipo_persona"],
+            estado=estado  # Asigna la instancia correcta
+        )
+        return JsonResponse({"success": True, "message": "Cliente creado exitosamente.", "id": cliente.pk}, status=201)
+
     return genericApi(request, Cliente, ClienteSerializer, id)
+
 
 
 # API específica para TipoVehiculo
