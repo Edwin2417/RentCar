@@ -2,7 +2,10 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 from rentCarApp.models import Usuario, Rol, Estado
 from rentCarApp.serializers import UsuarioSerializer, RolSerializer, EstadoSerializer
+from rentCarApp.decorators import login_required_custom, admin_required  # Importa el decorador
 
+@login_required_custom
+@admin_required
 def usuarioView(request):
     usuario_list = Usuario.objects.all()
     paginator = Paginator(usuario_list, 5)

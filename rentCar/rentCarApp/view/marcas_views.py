@@ -2,7 +2,10 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 from rentCarApp.models import Marca, Estado
 from rentCarApp.serializers import MarcaSerializer, EstadoSerializer
+from rentCarApp.decorators import login_required_custom, admin_required  # Importa el decorador
 
+@login_required_custom
+@admin_required
 def marcasView(request):
     marcas_list = Marca.objects.all().order_by('identificador')
     paginator = Paginator(marcas_list, 5)

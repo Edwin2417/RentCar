@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Denegado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #121212;
+        }
+        .error-container {
+            display: inline-block;
+            background: #2c2b2b;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .error-icon {
+            font-size: 50px;
+            color: #ff4d4d;
+        }
+        h1 {
+            color: white;
+        }
+        p {
+            color: white;
+        }
+        .btn-home {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #ff4d4d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn-home:hover {
+            background: #a71d2a;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">❌</div>
+        <h1>Acceso Denegado</h1>
+        <p>No tienes permisos para acceder a este apartado.</p>
+        <a href="{% url 'home' %}" class="btn-home">Volver al Inicio</a>
+    </div>
+</body>
+</html>

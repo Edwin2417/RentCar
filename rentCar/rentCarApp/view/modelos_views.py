@@ -3,7 +3,10 @@ from django.http import JsonResponse
 from rentCarApp.models import Modelo, Estado    
 from django.core.paginator import Paginator
 from rentCarApp.serializers import ModeloSerializer,EstadoSerializer
+from rentCarApp.decorators import login_required_custom, admin_required  # Importa el decorador
 
+@login_required_custom
+@admin_required
 def modelosView(request):
     modelos_list = Modelo.objects.all().order_by('identificador') 
     paginator = Paginator(modelos_list, 5)  

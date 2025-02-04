@@ -3,7 +3,10 @@ from django.http import JsonResponse
 from rentCarApp.models import TipoCombustible, Estado
 from django.core.paginator import Paginator
 from rentCarApp.serializers import TipoCombustibleSerializer,EstadoSerializer
+from rentCarApp.decorators import login_required_custom, admin_required  # Importa el decorador
 
+@login_required_custom
+@admin_required
 def tipoCombustibleView(request):
 
     tipoCombustibles_list = TipoCombustible.objects.all().order_by('identificador')

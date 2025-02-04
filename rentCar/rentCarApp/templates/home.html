@@ -81,6 +81,7 @@
     <div class="container">
         <h2>DASHBOARD</h2>
         <div class="grid">
+            {% if request.user_role == 1 %}
             <div class="card">
                 <i class="bi bi-grid-fill"></i>
                 <h5>Marcas</h5>
@@ -116,13 +117,14 @@
             <div class="card">
                 <i class="bi bi-people-fill"></i>
                 <h5>Clientes</h5>
-                <a href="#" class="btn btn-primary">Consultar</a>
+                <a href="{% url 'clienteView' %}" class="btn btn-primary">Consultar</a>
             </div>
             <div class="card">
                 <i class="bi bi-person-badge-fill"></i>
                 <h5>Empleados</h5>
-                <a href="#" class="btn btn-primary">Consultar</a>
+                <a href="{% url 'empleadoView' %}" class="btn btn-primary">Consultar</a>
             </div>
+            {% endif %}
             <div class="card">
                 <i class="bi bi-clipboard-check-fill"></i>
                 <h5>Inspección</h5>

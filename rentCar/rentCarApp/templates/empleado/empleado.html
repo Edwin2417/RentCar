@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Empleados | Indexing Car Rental{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-white">Empleados</h2>
+        <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
+            data-bs-target="#crearEmpleadoModal">Crear Empleado</a>
+    </div>
+
+    <table class="table table-hover align-middle" style="background-color: #121212; color: white; width: 100%;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <th class="py-3">ID</th>
+                <th class="py-3">Nombre</th>
+                <th class="py-3">Cédula</th>
+                <th class="py-3">Tanda Laboral</th>
+                <th class="py-3">Porciento Comisión</th>
+                <th class="py-3">Fecha Ingreso</th>
+                <th class="py-3">Estado</th>
+                <th class="py-3">Usuario</th>
+                <th class="py-3">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado in empleados %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td class="py-3">{{ empleado.identificador }}</td>
+                <td class="py-3">{{ empleado.nombre }}</td>
+                <td class="py-3">{{ empleado.cedula }}</td>
+                <td class="py-3">{{ empleado.tanda_labor }}</td>
+                <td class="py-3">{{ empleado.porciento_comision }}%</td>
+                <td class="py-3">{{ empleado.fecha_ingreso }}</td>
+                
+                <td class="py-3">
+                    {% for usuario in usuarios %}
+                        {% if usuario.identificador == empleado.usuario %}
+                            {{ usuario.nombre_usuario }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+
+                <!-- Estado -->
+                <td class="py-3">
+                    {% for estado in estados %}
+                        {% if estado.identificador == empleado.estado %}
+                            <span class="badge bg-{% if estado.identificador == 1 %}success{% else %}danger{% endif %} rounded-pill px-3 py-2">{{ estado.descripcion }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                
+                <td class="py-3">
+                    <div class="acciones-btns">
+                        <button class="btn btn-warning text-white btn-editar"
+                            data-id="{{ empleado.identificador }}"
+                            data-nombre="{{ empleado.nombre }}"
+                            data-cedula="{{ empleado.cedula }}"
+                            data-tanda_labor="{{ empleado.tanda_labor }}"
+                            data-porciento_comision="{{ empleado.porciento_comision }}"
+                            data-fecha_ingreso="{{ empleado.fecha_ingreso }}"
+                            data-estado="{{ empleado.estado }}"
+                            data-usuario="{{ empleado.usuario }}">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button class="btn btn-danger text-white btn-eliminar" data-id="{{ empleado.identificador }}">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td colspan="9" class="text-center py-4">No hay empleados disponibles</td>
+            </tr>
+            {% endfor %}
+        </tbody>        
+    </table>
+</div>
+
+{% include "paginator.html" %}
+{% include "toasts.html" %}
+{% include "empleado/empleado_modals.html" %}
+
+<script src="{% static 'js/empleado.js' %}"></script>
+
+{% endblock %}

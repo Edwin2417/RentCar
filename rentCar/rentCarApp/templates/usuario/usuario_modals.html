@@ -29,6 +29,7 @@
                     <div class="mb-3">
                         <label for="rol" class="form-label">Rol</label>
                         <select class="form-control" id="rol" name="rol" data-nombre="Rol" required>
+                            <option value="" disabled selected>Seleccione un Rol</option>
                             {% for rol in roles %}
                             <option value="{{ rol.identificador }}">{{ rol.descripcion }}</option>
                             {% endfor %}

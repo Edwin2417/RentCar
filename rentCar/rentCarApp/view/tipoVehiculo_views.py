@@ -3,7 +3,10 @@ from django.http import JsonResponse
 from rentCarApp.models import TipoVehiculo, Estado
 from django.core.paginator import Paginator
 from rentCarApp.serializers import TipoVehiculoSerializer, EstadoSerializer
+from rentCarApp.decorators import login_required_custom, admin_required  # Importa el decorador
 
+@login_required_custom
+@admin_required
 def tipoVehiculoView(request):
 
     tipoVehiculos_list = TipoVehiculo.objects.all()
