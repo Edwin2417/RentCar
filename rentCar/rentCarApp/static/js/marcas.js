@@ -167,6 +167,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+
+
 // Función para mostrar los toasts de notificación
 function mostrarToast(tipo, mensaje) {
     const toastEl = document.getElementById(`toast${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
