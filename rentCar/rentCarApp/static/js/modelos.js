@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Función para mostrar errores debajo de los inputs
     function mostrarErrorCampo(campo, mensaje) {
         let errorSpan = campo.nextElementSibling;
         if (!errorSpan || !errorSpan.classList.contains("error-message")) {
@@ -13,7 +12,6 @@ document.addEventListener("DOMContentLoaded", function () {
         errorSpan.innerText = mensaje;
     }
 
-    // Función para limpiar errores cuando el usuario escribe
     function limpiarErrorCampo(campo) {
         let errorSpan = campo.nextElementSibling;
         if (errorSpan && errorSpan.classList.contains("error-message")) {

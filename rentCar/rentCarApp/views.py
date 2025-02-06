@@ -7,7 +7,6 @@ import re
 from django.utils.dateparse import parse_date
 from datetime import datetime
 
-# Importar todos los modelos y serializers necesarios
 from rentCarApp.models import (
     Marca, Estado, Vehiculo, RentaDevolucion, Rol, Usuario, Empleado, Cliente,
     TipoVehiculo, Modelo, TipoCombustible, Inspeccion
@@ -18,11 +17,10 @@ from rentCarApp.serializers import (
     TipoVehiculoSerializer, ModeloSerializer, TipoCombustibleSerializer, InspeccionSerializer
 )
 
-# CRUD genérico para múltiples modelos
 @csrf_exempt
 def genericApi(request, model, serializer, id=None):
     if request.method == 'GET':
-        # Si 'id' se pasa, solo se obtiene un objeto específico
+
         if id:
             try:
                 obj = model.objects.get(pk=id)
@@ -30,14 +28,14 @@ def genericApi(request, model, serializer, id=None):
                 return JsonResponse(obj_serializer.data, safe=False)
             except model.DoesNotExist:
                 return JsonResponse({"error": "Objeto no encontrado"}, status=404)
-        # Si no, se obtienen todos los objetos
+            
         objects = model.objects.all()
         objects_serializer = serializer(objects, many=True)
         return JsonResponse(objects_serializer.data, safe=False)
 
     elif request.method == 'POST':
         data = JSONParser().parse(request)
-        # Se valida el serializador y se guarda el nuevo objeto
+
         objects_serializer = serializer(data=data)
         if objects_serializer.is_valid():
             objects_serializer.save()
@@ -46,15 +44,14 @@ def genericApi(request, model, serializer, id=None):
 
     elif request.method == 'PUT':
         data = JSONParser().parse(request)
-        id = int(id) if id else None  # Asegúrate de que id sea un entero
+        id = int(id) if id else None  
 
         try:
             obj = model.objects.get(pk=id)
         except model.DoesNotExist:
             return JsonResponse({"error": "Objeto no encontrado"}, status=404)
 
-        # Se actualiza el objeto con los nuevos datos
-        objects_serializer = serializer(obj, data=data, partial=True)  # Permite actualizar campos parciales
+        objects_serializer = serializer(obj, data=data, partial=True) 
         if objects_serializer.is_valid():
             objects_serializer.save()
             return JsonResponse({"message": "¡Actualizado Exitosamente!", "data": objects_serializer.data}, status=200)
@@ -91,12 +88,10 @@ def validar_datos(data, id=None):
     required_fields = ["descripcion", "no_chasis", "no_motor", "no_placa", "tipo_vehiculo", "marca", "modelo", "tipo_combustible", "estado"]
     errores = {}
 
-    # Validación de campos requeridos
     for field in required_fields:
         if not data.get(field):
             errores[field] = [f"El campo {field} es obligatorio."]
 
-    # Validaciones de unicidad (evitar colisión en caso de actualización)
     if Vehiculo.objects.filter(no_chasis=data.get("no_chasis")).exclude(identificador=id).exists():
         errores["no_chasis"] = ["Este número de chasis ya está registrado."]
     if Vehiculo.objects.filter(no_motor=data.get("no_motor")).exclude(identificador=id).exists():
@@ -104,7 +99,6 @@ def validar_datos(data, id=None):
     if Vehiculo.objects.filter(no_placa=data.get("no_placa")).exclude(identificador=id).exists():
         errores["no_placa"] = ["Este número de placa ya está registrado."]
 
-    # Validación de claves foráneas
     try:
         data["tipo_vehiculo"] = TipoVehiculo.objects.get(pk=data["tipo_vehiculo"])
         data["marca"] = Marca.objects.get(pk=data["marca"])
@@ -128,14 +122,12 @@ def vehiculoApi(request, id=0):
                 vehiculo = Vehiculo.objects.get(pk=id)
             except Vehiculo.DoesNotExist:
                 return JsonResponse({"success": False, "error": "Vehículo no encontrado."}, status=404)
-        
-        # Validar datos
+
         data, errores = validar_datos(data, id if is_update else None)
         if errores:
             return JsonResponse({"success": False, "errors": errores}, status=400)
         
         if is_update:
-            # Actualizar vehículo
             vehiculo.descripcion = data["descripcion"]
             vehiculo.no_chasis = data["no_chasis"]
             vehiculo.no_motor = data["no_motor"]
@@ -147,8 +139,7 @@ def vehiculoApi(request, id=0):
             vehiculo.estado = data["estado"]
             vehiculo.save()
             return JsonResponse({"success": True, "message": "Vehículo actualizado exitosamente."}, status=200)
-        
-        # Crear vehículo
+
         vehiculo = Vehiculo.objects.create(
             descripcion=data["descripcion"],
             no_chasis=data["no_chasis"],
@@ -191,11 +182,9 @@ def validar_usuario_datos(data, id=None):
     if not data.get("estado"):
         errores["estado"] = ["El campo estado es obligatorio."]
 
-    # Validación de unicidad del nombre de usuario
     if Usuario.objects.filter(nombre_usuario=data.get("nombre_usuario")).exclude(identificador=id).exists():
         errores["nombre_usuario"] = ["Este nombre de usuario ya está registrado."]
 
-    # Validación de claves foráneas
     try:
         data["rol"] = Rol.objects.get(pk=data["rol"])
         data["estado"] = Estado.objects.get(pk=data["estado"])
@@ -216,14 +205,12 @@ def usuarioApi(request, id=0):
                 usuario = Usuario.objects.get(pk=id)
             except Usuario.DoesNotExist:
                 return JsonResponse({"success": False, "error": "Usuario no encontrado."}, status=404)
-        
-        # Validar datos
+
         data, errores = validar_usuario_datos(data, id if is_update else None)
         if errores:
             return JsonResponse({"success": False, "errors": errores}, status=400)
 
         if is_update:
-            # Actualizar usuario
             usuario.nombre_usuario = data["nombre_usuario"]
             usuario.contrasena = data["contrasena"]
             usuario.rol = data["rol"]
@@ -231,7 +218,6 @@ def usuarioApi(request, id=0):
             usuario.save()
             return JsonResponse({"success": True, "message": "Usuario actualizado exitosamente."}, status=200)
 
-        # Crear usuario
         usuario = Usuario.objects.create(
             nombre_usuario=data["nombre_usuario"],
             contrasena=data["contrasena"],
@@ -249,7 +235,7 @@ def validar_cedula(cedula):
     if len(cedula) != 11 or not cedula.isdigit():
         return False
 
-    multiplicadores = [1, 2] * 5 + [1]  # Secuencia alternada de 1 y 2
+    multiplicadores = [1, 2] * 5 + [1]  
     total = 0
 
     for i in range(11):
@@ -263,10 +249,8 @@ def validar_cedula(cedula):
 def validar_empleado_datos(data, id=None):
     errores = {}
 
-    # Expresión regular para validar el formato de la cédula
     cedula_regex = r'^\d{3}-\d{7}-\d{1}$'
 
-    # Validar campos requeridos
     if not data.get("nombre"):
         errores["nombre"] = ["El campo nombre es obligatorio."]
     
@@ -303,7 +287,6 @@ def validar_empleado_datos(data, id=None):
     if not data.get("estado"):
         errores["estado"] = ["El campo estado es obligatorio."]
 
-    # Validación de unicidad de la cédula
     if Empleado.objects.filter(cedula=data.get("cedula")).exclude(identificador=id).exists():
         errores["cedula"] = ["Esta cédula ya está registrada."]
     
@@ -321,31 +304,28 @@ def empleadoApi(request, id=0):
                 empleado = Empleado.objects.get(pk=id)
             except Empleado.DoesNotExist:
                 return JsonResponse({"success": False, "error": "Empleado no encontrado."}, status=404)
-
-        # Validar datos
+            
         data, errores = validar_empleado_datos(data, id if is_update else None)
         if errores:
             return JsonResponse({"success": False, "errors": errores}, status=400)
-
-        # Obtener instancia de Estado
+        
         try:
             estado = Estado.objects.get(pk=data["estado"])
         except ObjectDoesNotExist:
             return JsonResponse({"success": False, "error": "El estado seleccionado no es válido."}, status=400)
 
         if is_update:
-            # Actualizar empleado
+
             empleado.nombre = data["nombre"]
             empleado.cedula = data["cedula"]
             empleado.tanda_labor = data["tanda_labor"]
             empleado.porciento_comision = data["porciento_comision"]
             empleado.fecha_ingreso = data["fecha_ingreso"]
             empleado.usuario_id = data["usuario"]
-            empleado.estado = estado  # Asigna la instancia correcta
+            empleado.estado = estado  
             empleado.save()
             return JsonResponse({"success": True, "message": "Empleado actualizado exitosamente."}, status=200)
 
-        # Crear empleado
         empleado = Empleado.objects.create(
             nombre=data["nombre"],
             cedula=data["cedula"],
@@ -353,7 +333,7 @@ def empleadoApi(request, id=0):
             porciento_comision=data["porciento_comision"],
             fecha_ingreso=data["fecha_ingreso"],
             usuario_id=data["usuario"],
-            estado=estado  # Asigna la instancia correcta
+            estado=estado  
         )
         return JsonResponse({"success": True, "message": "Empleado creado exitosamente.", "id": empleado.pk}, status=201)
 
@@ -362,11 +342,10 @@ def empleadoApi(request, id=0):
 def validar_cliente_datos(data, id=None):
     errores = {}
 
-    # Expresiones regulares para validar el formato
-    cedula_regex = r'^\d{3}-\d{7}-\d{1}$'  # Formato: 123-4567890-1
-    tarjeta_regex = r'^\d{4}-\d{4}-\d{4}-\d{4}$'  # Formato: 1234-5678-9123-4567
 
-    # Validar campos requeridos
+    cedula_regex = r'^\d{3}-\d{7}-\d{1}$' 
+    tarjeta_regex = r'^\d{4}-\d{4}-\d{4}-\d{4}$' 
+
     if not data.get("nombre"):
         errores["nombre"] = ["El campo nombre es obligatorio."]
     
@@ -381,8 +360,7 @@ def validar_cliente_datos(data, id=None):
         errores["no_tarjeta_cr"] = ["El campo número de tarjeta de crédito es obligatorio."]
     elif not re.match(tarjeta_regex, data["no_tarjeta_cr"]):  
         errores["no_tarjeta_cr"] = ["El número de tarjeta debe estar en el formato ####-####-####-####."]
-    
-    # Validación de límite de crédito
+
     if not data.get("limite_credito"):
         errores["limite_credito"] = ["El campo límite de crédito es obligatorio."]
     else:
@@ -399,11 +377,9 @@ def validar_cliente_datos(data, id=None):
     if not data.get("estado"):
         errores["estado"] = ["El campo estado es obligatorio."]
 
-    # Validación de unicidad de la cédula
     if Cliente.objects.filter(cedula=data.get("cedula")).exclude(identificador=id).exists():
         errores["cedula"] = ["Esta cédula ya está registrada."]
     
-    # Validación de unicidad del número de tarjeta de crédito
     if Cliente.objects.filter(no_tarjeta_cr=data.get("no_tarjeta_cr")).exclude(identificador=id).exists():
         errores["no_tarjeta_cr"] = ["Este número de tarjeta ya está registrado."]
 
@@ -423,36 +399,33 @@ def clienteApi(request, id=0):
             except Cliente.DoesNotExist:
                 return JsonResponse({"success": False, "error": "Cliente no encontrado."}, status=404)
 
-        # Validar datos
         data, errores = validar_cliente_datos(data, id if is_update else None)
         if errores:
             return JsonResponse({"success": False, "errors": errores}, status=400)
 
-        # Obtener instancia de Estado
         try:
             estado = Estado.objects.get(pk=data["estado"])
         except ObjectDoesNotExist:
             return JsonResponse({"success": False, "error": "El estado seleccionado no es válido."}, status=400)
 
         if is_update:
-            # Actualizar cliente
+
             cliente.nombre = data["nombre"]
             cliente.cedula = data["cedula"]
             cliente.no_tarjeta_cr = data["no_tarjeta_cr"]
             cliente.limite_credito = data["limite_credito"]
             cliente.tipo_persona = data["tipo_persona"]
-            cliente.estado = estado  # Asigna la instancia correcta
+            cliente.estado = estado  
             cliente.save()
             return JsonResponse({"success": True, "message": "Cliente actualizado exitosamente."}, status=200)
 
-        # Crear cliente
         cliente = Cliente.objects.create(
             nombre=data["nombre"],
             cedula=data["cedula"],
             no_tarjeta_cr=data["no_tarjeta_cr"],
             limite_credito=data["limite_credito"],
             tipo_persona=data["tipo_persona"],
-            estado=estado  # Asigna la instancia correcta
+            estado=estado  
         )
         return JsonResponse({"success": True, "message": "Cliente creado exitosamente.", "id": cliente.pk}, status=201)
 

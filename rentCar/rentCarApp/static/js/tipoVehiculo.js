@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Función para CREAR una nueva tipoVehiculo
     document.getElementById('guardartipoVehiculo').addEventListener('click', function () {
         const descripcion = document.getElementById('descripcion').value.trim();
         const estado = document.getElementById('estado').value;
@@ -29,38 +28,33 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 mostrarToast('success', data.message || 'tipoVehiculo agregada exitosamente.');
-                document.getElementById("creartipoVehiculoForm").reset(); // Limpiar formulario
+                document.getElementById("creartipoVehiculoForm").reset(); 
 
-                // Ocultar modal después de éxito
                 const modal = bootstrap.Modal.getInstance(document.getElementById('creartipoVehiculoModal'));
                 modal.hide();
 
-                setTimeout(() => location.reload(), 1000); // Recargar después de 1s
+                setTimeout(() => location.reload(), 1000); 
             })
             .catch(error => {
                 mostrarToast('danger', error.message);
             });
     });
 
-    // Función para manejar la EDICIÓN de una tipoVehiculo
     document.querySelectorAll(".btn-editar").forEach(button => {
         button.addEventListener("click", function () {
             const id = this.dataset.id;
             const descripcion = this.dataset.descripcion;
             const estado = this.dataset.estado;
 
-            // Llenar el modal con los datos actuales
             document.getElementById("editDescripcion").value = descripcion;
             document.getElementById("editEstado").value = estado;
             document.getElementById("editartipoVehiculo").dataset.id = id;
 
-            // Mostrar el modal de edición
             const modal = new bootstrap.Modal(document.getElementById("editartipoVehiculoModal"));
             modal.show();
         });
     });
 
-    // Guardar cambios de la tipoVehiculo editada
     document.getElementById("editartipoVehiculo").addEventListener("click", function () {
         const id = this.dataset.id;
         const descripcion = document.getElementById("editDescripcion").value.trim();
@@ -79,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify({
                 descripcion: descripcion,
-                estado: parseInt(estado) // Elimina parseInt, ya que Django espera un ID directamente
+                estado: parseInt(estado) 
             })
         })
 
@@ -95,20 +89,18 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
     });
 
-    // Función para ELIMINAR una tipoVehiculo
     document.querySelectorAll(".btn-eliminar").forEach(button => {
         button.addEventListener("click", function () {
             const id = this.dataset.id;
 
-            // Guardar el ID en un atributo del botón "Eliminar"
             const confirmarBtn = document.getElementById("confirmarEliminar");
             confirmarBtn.dataset.id = id;
 
-            // Mostrar el modal
+
             const modal = new bootstrap.Modal(document.getElementById("modalConfirmacion"));
             modal.show();
 
-            // Manejar la confirmación de eliminación
+
             confirmarBtn.onclick = function () {
                 fetch(`/api/tipoVehiculo/${id}`, {
                     method: "DELETE",
@@ -131,7 +123,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// Función para mostrar los toasts de notificación
 function mostrarToast(tipo, mensaje) {
     const toastEl = document.getElementById(`toast${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
     toastEl.querySelector('.toast-body').innerText = mensaje;

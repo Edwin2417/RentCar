@@ -30,7 +30,7 @@ class RolSerializer(serializers.ModelSerializer):
 
 # Serializer para Usuario
 class UsuarioSerializer(serializers.ModelSerializer):
-    rol = serializers.PrimaryKeyRelatedField(queryset=Rol.objects.all())  # Muestra el texto del rol en lugar del ID
+    rol = serializers.PrimaryKeyRelatedField(queryset=Rol.objects.all())  
     estado = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all())
 
     class Meta:
@@ -40,8 +40,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 # Serializer para Empleado
 class EmpleadoSerializer(serializers.ModelSerializer):
-    usuario = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all()) # Detalle del usuario relacionado
-    estado = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all())  # Solo texto del estado
+    usuario = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all()) 
+    estado = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all())  
 
     class Meta:
         model = Empleado

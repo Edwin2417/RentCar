@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 from rentCarApp.models import Usuario, Rol, Estado
 from rentCarApp.serializers import UsuarioSerializer, RolSerializer, EstadoSerializer
-from rentCarApp.decorators import login_required_custom, admin_required  # Importa el decorador
+from rentCarApp.decorators import login_required_custom, admin_required  
 
 @login_required_custom
 @admin_required

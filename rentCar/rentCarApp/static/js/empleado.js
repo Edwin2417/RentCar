@@ -5,16 +5,14 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch("/api/empleado/")
             .then(response => response.json())
             .then(data => {
-                // Obtener los usuarios que ya tienen empleados
                 const usuariosAsignados = new Set(data.map(emp => emp.usuario));
 
-                // Filtrar opciones en el select de creación y edición
                 document.querySelectorAll("#usuario, #editUsuario").forEach(select => {
                     Array.from(select.options).forEach(option => {
                         if (usuariosAsignados.has(parseInt(option.value))) {
-                            option.style.display = "none"; // Ocultar el usuario ya asignado
+                            option.style.display = "none"; 
                         } else {
-                            option.style.display = "block"; // Mostrar los no asignados
+                            option.style.display = "block"; 
                         }
                     });
                 });
@@ -28,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function setFormattedDate(inputId, dateValue) {
         if (dateValue) {
             let date = new Date(dateValue);
-            let formattedDate = date.toISOString().split('T')[0]; // Convertir a YYYY-MM-DD
+            let formattedDate = date.toISOString().split('T')[0]; 
             document.getElementById(inputId).value = formattedDate;
         }
     }
