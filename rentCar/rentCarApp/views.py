@@ -242,13 +242,29 @@ def usuarioApi(request, id=0):
 
     return genericApi(request, Usuario, UsuarioSerializer, id)
 
+def validar_cedula(cedula):
+    """ Verifica si la cédula dominicana es válida según el algoritmo de validación. """
+    cedula = cedula.replace("-", "")
+    
+    if len(cedula) != 11 or not cedula.isdigit():
+        return False
 
+    multiplicadores = [1, 2] * 5 + [1]  # Secuencia alternada de 1 y 2
+    total = 0
+
+    for i in range(11):
+        resultado = int(cedula[i]) * multiplicadores[i]
+        if resultado >= 10:
+            resultado = (resultado // 10) + (resultado % 10)
+        total += resultado
+
+    return total % 10 == 0
 
 def validar_empleado_datos(data, id=None):
     errores = {}
 
-    # Expresión regular para validar cédula
-    cedula_regex = r'^\d{3}-\d{7}-\d{1}$'  # Formato: 123-4567890-1
+    # Expresión regular para validar el formato de la cédula
+    cedula_regex = r'^\d{3}-\d{7}-\d{1}$'
 
     # Validar campos requeridos
     if not data.get("nombre"):
@@ -258,12 +274,21 @@ def validar_empleado_datos(data, id=None):
         errores["cedula"] = ["El campo cédula es obligatorio."]
     elif not re.match(cedula_regex, data["cedula"]):
         errores["cedula"] = ["La cédula debe estar en el formato ###-#######-#."]
+    elif not validar_cedula(data["cedula"]):
+        errores["cedula"] = ["La cédula ingresada no es válida."]
     
     if not data.get("tanda_labor"):
         errores["tanda_labor"] = ["El campo tanda de labor es obligatorio."]
     
     if not data.get("porciento_comision"):
         errores["porciento_comision"] = ["El campo porcentaje de comisión es obligatorio."]
+    else:
+        try:
+            porciento_comision = float(data["porciento_comision"])
+            if porciento_comision < 0:
+                errores["porciento_comision"] = ["El porcentaje de comisión no puede ser negativo."]
+        except ValueError:
+            errores["porciento_comision"] = ["El porcentaje de comisión debe ser un número válido."]
     
     if not data.get("fecha_ingreso"):
         errores["fecha_ingreso"] = ["El campo fecha de ingreso es obligatorio."]
@@ -334,7 +359,6 @@ def empleadoApi(request, id=0):
 
     return genericApi(request, Empleado, EmpleadoSerializer, id)
 
-
 def validar_cliente_datos(data, id=None):
     errores = {}
 
@@ -345,20 +369,33 @@ def validar_cliente_datos(data, id=None):
     # Validar campos requeridos
     if not data.get("nombre"):
         errores["nombre"] = ["El campo nombre es obligatorio."]
+    
     if not data.get("cedula"):
         errores["cedula"] = ["El campo cédula es obligatorio."]
-    elif not re.match(cedula_regex, data["cedula"]):  # Verifica el formato de la cédula
+    elif not re.match(cedula_regex, data["cedula"]):  
         errores["cedula"] = ["La cédula debe estar en el formato ###-#######-#."]
+    elif not validar_cedula(data["cedula"]):  
+        errores["cedula"] = ["La cédula ingresada no es válida."]
     
     if not data.get("no_tarjeta_cr"):
         errores["no_tarjeta_cr"] = ["El campo número de tarjeta de crédito es obligatorio."]
-    elif not re.match(tarjeta_regex, data["no_tarjeta_cr"]):  # Verifica el formato de la tarjeta
+    elif not re.match(tarjeta_regex, data["no_tarjeta_cr"]):  
         errores["no_tarjeta_cr"] = ["El número de tarjeta debe estar en el formato ####-####-####-####."]
     
+    # Validación de límite de crédito
     if not data.get("limite_credito"):
         errores["limite_credito"] = ["El campo límite de crédito es obligatorio."]
+    else:
+        try:
+            limite_credito = float(data["limite_credito"])
+            if limite_credito < 0:
+                errores["limite_credito"] = ["El límite de crédito no puede ser negativo."]
+        except ValueError:
+            errores["limite_credito"] = ["El límite de crédito debe ser un número válido."]
+    
     if not data.get("tipo_persona"):
         errores["tipo_persona"] = ["El campo tipo de persona es obligatorio."]
+    
     if not data.get("estado"):
         errores["estado"] = ["El campo estado es obligatorio."]
 
