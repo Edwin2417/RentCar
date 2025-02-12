@@ -9,5 +9,6 @@ from .vehiculos_views import vehiculoView
 from .usuario_views import usuarioView
 from .cliente_view import clienteView
 from .empleado_view import empleadoView
+from .inspeccion_view import inspeccionView
 
 # Ahora puedes importar directamente desde rentCarApp.views

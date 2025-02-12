@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 from rentCarApp.models import Vehiculo, TipoVehiculo, Marca, Modelo, TipoCombustible, Estado
 from rentCarApp.serializers import VehiculoSerializer, TipoVehiculoSerializer, MarcaSerializer, ModeloSerializer, TipoCombustibleSerializer, EstadoSerializer
-from rentCarApp.decorators import login_required_custom, admin_required  # Importa el decorador
+from rentCarApp.decorators import login_required_custom, admin_required  
 
 @login_required_custom
 @admin_required

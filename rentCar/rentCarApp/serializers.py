@@ -108,9 +108,9 @@ class VehiculoSerializer(serializers.ModelSerializer):
 
 # Serializer para Inspeccion
 class InspeccionSerializer(serializers.ModelSerializer):
-    vehiculo = VehiculoSerializer(read_only=True)
-    cliente = ClienteSerializer(read_only=True)
-    empleado_inspeccion = EmpleadoSerializer(read_only=True)
+    vehiculo = serializers.PrimaryKeyRelatedField(queryset=Vehiculo.objects.all())
+    cliente = serializers.PrimaryKeyRelatedField(queryset=Cliente.objects.all())
+    empleado_inspeccion = serializers.PrimaryKeyRelatedField(queryset=Empleado.objects.all())
     estado = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all())
 
     class Meta:

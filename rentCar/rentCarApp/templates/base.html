@@ -176,7 +176,7 @@
         <a href="{% url 'clienteView' %}">Clientes</a>
         <a href="{% url 'empleadoView' %}">Empleados</a>
         {% endif %}
-        <a href="#">Inspección</a>
+        <a href="{% url 'inspeccionView' %}">Inspección</a>
         <a href="#">Renta y Devolución</a>
 
         {% if user_name %}
