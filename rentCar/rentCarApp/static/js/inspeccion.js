@@ -1,4 +1,88 @@
 document.addEventListener("DOMContentLoaded", function () {
+    
+    function filtrarVehiculosDisponibles() {
+        fetch("/api/inspeccion/")
+            .then(response => response.json())
+            .then(data => {
+                const vehiculosInspeccionados = new Set(data.map(inspeccion => inspeccion.vehiculo));
+    
+                document.querySelectorAll("#vehiculo, #editVehiculo").forEach(select => {
+                    Array.from(select.options).forEach(option => {
+                        if (vehiculosInspeccionados.has(parseInt(option.value))) {
+                            option.style.display = "none"; 
+                        } else {
+                            option.style.display = "block"; 
+                        }
+                    });
+                });
+            })
+            .catch(error => console.error("Error al cargar inspecciones:", error));
+    }
+    
+    document.getElementById("crearInspeccionModal").addEventListener("show.bs.modal", filtrarVehiculosDisponibles);
+    document.getElementById("editarInspeccionModal").addEventListener("show.bs.modal", filtrarVehiculosDisponibles);
+
+    function filtrarClientesDisponibles() {
+        fetch("/api/inspeccion/")
+            .then(response => response.json())
+            .then(data => {
+                const clientesInspeccionados = new Set(data.map(inspeccion => inspeccion.cliente));
+    
+                document.querySelectorAll("#cliente, #editCliente").forEach(select => {
+                    Array.from(select.options).forEach(option => {
+                        if (clientesInspeccionados.has(parseInt(option.value))) {
+                            option.style.display = "none"; 
+                        } else {
+                            option.style.display = "block"; 
+                        }
+                    });
+                });
+            })
+            .catch(error => console.error("Error al cargar inspecciones:", error));
+    }
+    
+    document.getElementById("crearInspeccionModal").addEventListener("show.bs.modal", filtrarClientesDisponibles);
+    document.getElementById("editarInspeccionModal").addEventListener("show.bs.modal", filtrarClientesDisponibles);
+    
+    function validarFecha(campo) {
+        const fechaSeleccionada = new Date(campo.value);
+        const fechaActual = new Date();
+        
+        // Ajustar la fecha actual para ignorar la hora y comparar solo la fecha
+        fechaActual.setHours(0, 0, 0, 0);
+
+        if (fechaSeleccionada < fechaActual) {
+            mostrarErrorCampo(campo, "La fecha de inspección no puede ser anterior a hoy.");
+            return false;
+        }
+        return true;
+    }
+
+    function validarFormularioInspeccion(formulario) {
+        const vehiculo = formulario.querySelector("#vehiculo, #editVehiculo");
+        const cliente = formulario.querySelector("#cliente, #editCliente");
+        const empleado_inspeccion = formulario.querySelector("#empleado, #editEmpleado");
+        const fecha = formulario.querySelector("#fecha, #editFecha");
+        const cantidad_combustible = formulario.querySelector("#cantidad_combustible, #editCantidadCombustible");
+        const estado = formulario.querySelector("#estado, #editEstado");
+        
+        let valido = true;
+
+        [vehiculo, cliente, empleado_inspeccion, fecha, cantidad_combustible, estado].forEach(campo => {
+            if (!campo.value.trim()) {
+                mostrarErrorCampo(campo, "Este campo es obligatorio.");
+                valido = false;
+            }
+        });
+
+        // Validar que la fecha no sea anterior a hoy
+        if (!validarFecha(fecha)) {
+            valido = false;
+        }
+
+        return valido;
+    }
+
     function mostrarErrorCampo(campo, mensaje) {
         let errorSpan = campo.nextElementSibling;
         if (!errorSpan || !errorSpan.classList.contains("error-message")) {
@@ -34,6 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById('guardarInspeccion').addEventListener('click', function () {
         const form = document.getElementById("crearInspeccionForm");
+        if (!validarFormularioInspeccion(form)) return;
         const vehiculo = document.getElementById("vehiculo");
         const cliente = document.getElementById("cliente");
         const empleado_inspeccion = document.getElementById("empleado");
@@ -111,11 +196,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.getElementById("editCantidadCombustible").value = data.cantidad_combustible;
                     document.getElementById("editEstado").value = data.estado;
         
-                    // Marcar los checkboxes correctamente usando el atributo 'data-prop'
                     document.querySelectorAll("#editarInspeccionModal input[type=checkbox]").forEach(checkbox => {
-                        const prop = checkbox.getAttribute("data-prop"); // Obtén el valor del atributo 'data-prop'
+                        const prop = checkbox.getAttribute("data-prop"); 
                         if (prop && data.hasOwnProperty(prop)) {
-                            checkbox.checked = Boolean(data[prop]); // Marca el checkbox si la propiedad es verdadera
+                            checkbox.checked = Boolean(data[prop]); 
                         }
                     });
         
@@ -131,8 +215,17 @@ document.addEventListener("DOMContentLoaded", function () {
     
     document.getElementById("guardarCambiosInspeccion").addEventListener("click", function () {
         const id = document.getElementById("editId").value;
+        const fechaCampo = document.getElementById("editFecha");
+        const fechaSeleccionada = new Date(fechaCampo.value);
+        const fechaHoy = new Date();
         
-        // Obtener todos los datos del formulario, incluyendo los checkboxes
+        fechaHoy.setHours(0, 0, 0, 0);
+        
+        if (fechaSeleccionada < fechaHoy) {
+            mostrarErrorCampo(fechaCampo, "La fecha de inspección no puede ser anterior a hoy.");
+            return;
+        }
+        
         const inspeccionData = {
             vehiculo: document.getElementById("editVehiculo").value,
             cliente: document.getElementById("editCliente").value,
@@ -142,11 +235,10 @@ document.addEventListener("DOMContentLoaded", function () {
             estado: document.getElementById("editEstado").value
         };
     
-        // Añadir el estado de los checkboxes al objeto inspeccionData
         document.querySelectorAll("#editarInspeccionModal input[type=checkbox]").forEach(checkbox => {
             const prop = checkbox.getAttribute("data-prop");
             if (prop) {
-                inspeccionData[prop] = checkbox.checked; // Agrega el estado del checkbox (true/false)
+                inspeccionData[prop] = checkbox.checked; 
             }
         });
     
@@ -175,18 +267,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     
 
-    // Agregar evento a los botones de eliminar
     document.querySelectorAll(".btn-eliminar").forEach(button => {
         button.addEventListener("click", function () {
             const id = this.dataset.id;
-            document.getElementById("deleteId").value = id; // Guardamos el ID en el campo oculto del modal
+            document.getElementById("deleteId").value = id;
             new bootstrap.Modal(document.getElementById("eliminarInspeccionModal")).show();
         });
     });
 
-    // Evento para confirmar la eliminación
     document.getElementById("confirmarEliminarInspeccion").addEventListener("click", function () {
-        const id = document.getElementById("deleteId").value; // Obtener ID del campo oculto
+        const id = document.getElementById("deleteId").value; 
 
         if (!id) {
             mostrarToast("danger", "Error: No se pudo obtener el ID de la inspección.");

@@ -10,6 +10,7 @@ from rentCarApp.view.usuario_views import usuarioView
 from rentCarApp.view.cliente_view import clienteView
 from rentCarApp.view.empleado_view import empleadoView
 from rentCarApp.view.inspeccion_view import inspeccionView
+from rentCarApp.view.rentaDevolucion_view import renta_devolucion_view
 
 urlpatterns = [
     path('', login_view, name='login'),  
@@ -25,4 +26,6 @@ urlpatterns = [
     path('clientes/', clienteView, name='clienteView'),
     path('empleados/', empleadoView, name='empleadoView'),
     path('inspecciones/', inspeccionView, name='inspeccionView'),
+    path('rentaDevolucion/', renta_devolucion_view, name='renta_devolucion_view'),
+    
 ]
