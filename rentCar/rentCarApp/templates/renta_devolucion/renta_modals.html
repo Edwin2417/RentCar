@@ -1,0 +1,201 @@
+<div class="modal fade" id="crearRentaModal" tabindex="-1" aria-labelledby="crearRentaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="crearRentaModalLabel">Nueva Renta y Devolución</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="crearRentaForm">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    
+                    <!-- Vehículo -->
+                    <div class="mb-3">
+                        <label for="vehiculo" class="form-label">Vehículo</label>
+                        <select class="form-control" id="vehiculo" name="vehiculo" required>
+                            <option value="" disabled selected>Seleccione un Vehículo</option>
+                            {% for vehiculo in vehiculos %}
+                                <option value="{{ vehiculo.identificador }}">{{ vehiculo.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Cliente -->
+                    <div class="mb-3">
+                        <label for="cliente" class="form-label">Cliente</label>
+                        <select class="form-control" id="cliente" name="cliente" required>
+                            <option value="" disabled selected>Seleccione un Cliente</option>
+                            {% for cliente in clientes %}
+                                <option value="{{ cliente.identificador }}">{{ cliente.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Empleado -->
+                    <div class="mb-3">
+                        <label for="empleado" class="form-label">Empleado</label>
+                        <select class="form-control" id="empleado" name="empleado" required>
+                            <option value="" disabled selected>Seleccione un Empleado</option>
+                            {% for empleado in empleados %}
+                                <option value="{{ empleado.identificador }}">{{ empleado.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Fechas -->
+                    <div class="mb-3">
+                        <label for="fecha_renta" class="form-label">Fecha de Renta</label>
+                        <input type="date" class="form-control" id="fecha_renta" name="fecha_renta" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="fecha_devolucion" class="form-label">Fecha de Devolución</label>
+                        <input type="date" class="form-control" id="fecha_devolucion" name="fecha_devolucion">
+                    </div>
+                    
+                    <!-- Monto/Día -->
+                    <div class="mb-3">
+                        <label for="monto_por_dia" class="form-label">Monto por Día ($)</label>
+                        <input type="number" class="form-control" id="monto_por_dia" name="monto_por_dia" required min="0" step="0.01">
+                    </div>
+                    
+                    <!-- Cantidad de días -->
+                    <div class="mb-3">
+                       <label for="cantidad_dias" class="form-label">Cantidad de Días</label>
+                        <input type="number" class="form-control" id="cantidad_dias" name="cantidad_dias" required min="1" readonly>
+                    </div> 
+                    
+                    <!-- Comentario -->
+                    <div class="mb-3">
+                        <label for="comentario" class="form-label">Comentario</label>
+                        <textarea class="form-control" id="comentario" name="comentario" rows="2" placeholder="Opcional"></textarea>
+                    </div>
+                    
+                    <!-- Estado -->
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control" id="estado" name="estado" required>
+                            {% for estado in estados %}
+                                <option value="{{ estado.identificador }}">{{ estado.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="guardarRenta">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editarRentaModal" tabindex="-1" aria-labelledby="editarRentaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarRentaModalLabel">Editar Renta y Devolución</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editarRentaForm">
+                    <input type="hidden" id="editRentaId">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    
+                    <!-- Vehículo -->
+                    <div class="mb-3">
+                        <label for="editVehiculo" class="form-label">Vehículo</label>
+                        <select class="form-control" id="editVehiculo" name="vehiculo" required>
+                            {% for vehiculo in vehiculos %}
+                                <option value="{{ vehiculo.identificador }}">{{ vehiculo.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Cliente -->
+                    <div class="mb-3">
+                        <label for="editCliente" class="form-label">Cliente</label>
+                        <select class="form-control" id="editCliente" name="cliente" required>
+                            {% for cliente in clientes %}
+                                <option value="{{ cliente.identificador }}">{{ cliente.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Empleado -->
+                    <div class="mb-3">
+                        <label for="editEmpleado" class="form-label">Empleado</label>
+                        <select class="form-control" id="editEmpleado" name="empleado" required>
+                            {% for empleado in empleados %}
+                                <option value="{{ empleado.identificador }}">{{ empleado.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Fechas -->
+                    <div class="mb-3">
+                        <label for="editFechaRenta" class="form-label">Fecha de Renta</label>
+                        <input type="date" class="form-control" id="editFechaRenta" name="fecha_renta" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editFechaDevolucion" class="form-label">Fecha de Devolución</label>
+                        <input type="date" class="form-control" id="editFechaDevolucion" name="fecha_devolucion">
+                    </div>
+                    
+                    <!-- Monto/Día -->
+                    <div class="mb-3">
+                        <label for="editMontoPorDia" class="form-label">Monto por Día ($)</label>
+                        <input type="number" class="form-control" id="editMontoPorDia" name="monto_por_dia" required min="0" step="0.01">
+                    </div>
+                    
+                    <!-- Cantidad de días -->
+                    <div class="mb-3">
+                        <label for="editCantidadDias" class="form-label">Cantidad de Días</label>
+                        <input type="number" class="form-control" id="editCantidadDias" name="cantidad_dias" required min="1" readonly>
+                    </div>
+                    
+                    <!-- Comentario -->
+                    <div class="mb-3">
+                        <label for="editComentario" class="form-label">Comentario</label>
+                        <textarea class="form-control" id="editComentario" name="comentario" rows="2" placeholder="Opcional"></textarea>
+                    </div>
+                    
+                    <!-- Estado -->
+                    <div class="mb-3">
+                        <label for="editEstado" class="form-label">Estado</label>
+                        <select class="form-control" id="editEstado" name="estado" required>
+                            {% for estado in estados %}
+                                <option value="{{ estado.identificador }}">{{ estado.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" id="guardarCambiosRenta">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Eliminar Renta -->
+<div class="modal fade" id="eliminarRentaModal" tabindex="-1" aria-labelledby="eliminarRentaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2c2b2b; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eliminarRentaModalLabel">Eliminar Renta y Devolución</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar esta renta?</p>
+                <input type="hidden" id="renta_id_eliminar" name="renta_id_eliminar">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmarEliminarRenta">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
