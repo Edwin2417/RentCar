@@ -29,27 +29,27 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("editarInspeccionModal").addEventListener("show.bs.modal", filtrarVehiculosDisponibles);
     
 
-    function filtrarClientesDisponibles() {
-        fetch("/api/inspeccion/")
-            .then(response => response.json())
-            .then(data => {
-                const clientesInspeccionados = new Set(data.map(inspeccion => inspeccion.cliente));
+    // function filtrarClientesDisponibles() {
+    //     fetch("/api/inspeccion/")
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const clientesInspeccionados = new Set(data.map(inspeccion => inspeccion.cliente));
     
-                document.querySelectorAll("#cliente, #editCliente").forEach(select => {
-                    Array.from(select.options).forEach(option => {
-                        if (clientesInspeccionados.has(parseInt(option.value))) {
-                            option.style.display = "none"; 
-                        } else {
-                            option.style.display = "block"; 
-                        }
-                    });
-                });
-            })
-            .catch(error => console.error("Error al cargar inspecciones:", error));
-    }
+    //             document.querySelectorAll("#cliente, #editCliente").forEach(select => {
+    //                 Array.from(select.options).forEach(option => {
+    //                     if (clientesInspeccionados.has(parseInt(option.value))) {
+    //                         option.style.display = "none"; 
+    //                     } else {
+    //                         option.style.display = "block"; 
+    //                     }
+    //                 });
+    //             });
+    //         })
+    //         .catch(error => console.error("Error al cargar inspecciones:", error));
+    // }
     
-    document.getElementById("crearInspeccionModal").addEventListener("show.bs.modal", filtrarClientesDisponibles);
-    document.getElementById("editarInspeccionModal").addEventListener("show.bs.modal", filtrarClientesDisponibles);
+    // document.getElementById("crearInspeccionModal").addEventListener("show.bs.modal", filtrarClientesDisponibles);
+    // document.getElementById("editarInspeccionModal").addEventListener("show.bs.modal", filtrarClientesDisponibles);
     
     function validarFecha(campo) {
         const fechaSeleccionada = new Date(campo.value);
@@ -218,20 +218,66 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
     
-    
     document.getElementById("guardarCambiosInspeccion").addEventListener("click", function () {
         const id = document.getElementById("editId").value;
+        const estado = document.getElementById("editEstado").value;
         const fechaCampo = document.getElementById("editFecha");
         const fechaSeleccionada = new Date(fechaCampo.value);
         const fechaHoy = new Date();
-        
         fechaHoy.setHours(0, 0, 0, 0);
-        
+        let valido = true;
+    
+        function mostrarErrorCampo(input, mensaje) {
+            input.classList.add("is-invalid");
+            let errorDiv = input.nextElementSibling;
+            if (!errorDiv || !errorDiv.classList.contains("invalid-feedback")) {
+                errorDiv = document.createElement("div");
+                errorDiv.classList.add("invalid-feedback");
+                input.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.textContent = mensaje;
+            valido = false;
+        }
+    
+        document.querySelectorAll(".is-invalid").forEach(elemento => elemento.classList.remove("is-invalid"));
+        document.querySelectorAll(".invalid-feedback").forEach(elemento => elemento.remove());
+    
         if (fechaSeleccionada < fechaHoy) {
             mostrarErrorCampo(fechaCampo, "La fecha de inspección no puede ser anterior a hoy.");
+        }
+    
+        if (!valido) {
             return;
         }
-        
+    
+        if (estado == "1") { 
+            fetch("/api/inspeccion/")
+                .then(response => response.json())
+                .then(data => {
+                    const inspeccionesActivas = new Set();
+                    data.forEach(inspeccion => {
+                        if (inspeccion.estado == "1" && inspeccion.id != id) {
+                            inspeccionesActivas.add(inspeccion.vehiculo);
+                        }
+                    });
+    
+                    if (inspeccionesActivas.has(parseInt(document.getElementById("editVehiculo").value))) {
+                        mostrarErrorCampo(document.getElementById("editEstado"), "No puedes activar esta inspección porque el vehículo ya tiene una inspección activa.");
+                        return;
+                    }
+    
+                    actualizarInspeccion(id);
+                })
+                .catch(error => {
+                    mostrarToast("danger", "Error al validar la inspección.");
+                    console.error("Error:", error);
+                });
+        } else {
+            actualizarInspeccion(id);
+        }
+    });
+    
+    function actualizarInspeccion(id) {
         const inspeccionData = {
             vehiculo: document.getElementById("editVehiculo").value,
             cliente: document.getElementById("editCliente").value,
@@ -244,7 +290,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll("#editarInspeccionModal input[type=checkbox]").forEach(checkbox => {
             const prop = checkbox.getAttribute("data-prop");
             if (prop) {
-                inspeccionData[prop] = checkbox.checked; 
+                inspeccionData[prop] = checkbox.checked;
             }
         });
     
@@ -270,7 +316,7 @@ document.addEventListener("DOMContentLoaded", function () {
             mostrarToast("danger", "Error al actualizar la inspección.");
             console.error("Error:", error);
         });
-    });
+    }
     
 
     document.querySelectorAll(".btn-eliminar").forEach(button => {

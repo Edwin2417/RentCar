@@ -6,7 +6,6 @@ from rentCarApp.serializers import RentaDevolucionSerializer, VehiculoSerializer
 from rentCarApp.decorators import login_required_custom, admin_required  
 
 @login_required_custom
-@admin_required
 def renta_devolucion_view(request):
     renta_list = RentaDevolucion.objects.all()
     paginator = Paginator(renta_list, 5)

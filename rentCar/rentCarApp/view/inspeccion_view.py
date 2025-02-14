@@ -6,7 +6,6 @@ from rentCarApp.serializers import InspeccionSerializer, VehiculoSerializer, Cli
 from rentCarApp.decorators import login_required_custom, admin_required  
 
 @login_required_custom
-@admin_required
 def inspeccionView(request):
     inspeccion_list = Inspeccion.objects.all()
     paginator = Paginator(inspeccion_list, 5)

@@ -27,11 +27,15 @@ def login_view(request):
                     if user:
                         print(f"Usuario encontrado: {user}")  
                         if user['contrasena'] == password:
-                            request.session['user_id'] = user['identificador']
-                            request.session['user_name'] = user['nombre_usuario']
-                            request.session['user_role'] = user['rol']
-                            request.session.set_expiry(60 * 60 * 24 * 7)  
-                            return redirect('loading')
+                            # Verificar si el usuario está activo
+                            if user['estado'] == 1:
+                                request.session['user_id'] = user['identificador']
+                                request.session['user_name'] = user['nombre_usuario']
+                                request.session['user_role'] = user['rol']
+                                request.session.set_expiry(60 * 60 * 24 * 7)  
+                                return redirect('loading')
+                            else:
+                                messages.error(request, 'El usuario está inactivo.')
                         else:
                             messages.error(request, 'Contraseña incorrecta.')
                     else:
