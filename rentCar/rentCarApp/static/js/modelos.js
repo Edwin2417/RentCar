@@ -1,15 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
-    function mostrarErrorCampo(campo, mensaje) {
-        let errorSpan = campo.nextElementSibling;
-        if (!errorSpan || !errorSpan.classList.contains("error-message")) {
-            errorSpan = document.createElement("span");
-            errorSpan.classList.add("error-message");
-            errorSpan.style.color = "red";
-            errorSpan.style.fontSize = "16px";
-            errorSpan.style.display = "block";
-            campo.parentNode.appendChild(errorSpan);
-        }
-        errorSpan.innerText = mensaje;
+    function mostrarErrorCampo(input, mensaje) {
+        input.classList.add("is-invalid");
+            let errorDiv = input.nextElementSibling;
+            if (!errorDiv || !errorDiv.classList.contains("invalid-feedback")) {
+                errorDiv = document.createElement("div");
+                errorDiv.classList.add("invalid-feedback");
+                input.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.textContent = mensaje;
+            valido = false;
     }
 
     function limpiarErrorCampo(campo) {

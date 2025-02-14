@@ -1,12 +1,47 @@
 document.addEventListener("DOMContentLoaded", function () {
+    function mostrarErrorCampo(input, mensaje) {
+        input.classList.add("is-invalid");
+            let errorDiv = input.nextElementSibling;
+            if (!errorDiv || !errorDiv.classList.contains("invalid-feedback")) {
+                errorDiv = document.createElement("div");
+                errorDiv.classList.add("invalid-feedback");
+                input.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.textContent = mensaje;
+            valido = false;
+    }
+
+
+    function limpiarErrorCampo(campo) {
+        let errorSpan = campo.nextElementSibling;
+        if (errorSpan && errorSpan.classList.contains("error-message")) {
+            errorSpan.remove();
+        }
+    }
+
+    document.querySelectorAll("input, select").forEach(campo => {
+        campo.addEventListener("input", function () {
+            limpiarErrorCampo(this);
+        });
+    });
+
     document.getElementById('guardartipoCombustible').addEventListener('click', function () {
         const descripcion = document.getElementById('descripcion').value.trim();
         const estado = document.getElementById('estado').value;
+        let valido = true;
 
-        if (!descripcion) {
-            mostrarToast('warning', 'La descripción es obligatoria.');
-            return;
+
+        if (!descripcion.value.trim()) {
+            mostrarErrorCampo(descripcion, "La descripción es obligatoria.");
+            valido = false;
         }
+
+        if (!estado.value.trim()) {
+            mostrarErrorCampo(estado, "El estado es obligatorio.");
+            valido = false;
+        }
+
+        if (!valido) return;
 
         fetch('/api/tipoCombustible/', {
             method: 'POST',
@@ -60,10 +95,17 @@ document.addEventListener("DOMContentLoaded", function () {
         const descripcion = document.getElementById("editDescripcion").value.trim();
         const estado = document.getElementById("editEstado").value;
 
-        if (!descripcion) {
-            mostrarToast('warning', 'La descripción es obligatoria.');
-            return;
+        if (!descripcion.value.trim()) {
+            mostrarErrorCampo(descripcion, "La descripción es obligatoria.");
+            valido = false;
         }
+
+        if (!estado.value.trim()) {
+            mostrarErrorCampo(estado, "El estado es obligatorio.");
+            valido = false;
+        }
+
+        if (!valido) return;
 
         fetch(`/api/tipoCombustible/${id}`, {
             method: "PUT",

@@ -39,11 +39,18 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch("/api/rentaDevolucion/")
             .then(response => response.json())
             .then(data => {
-                const vehiculosRentados = new Set(data.map(renta => renta.vehiculo));
+                let vehiculosRentados = [];
+                data.forEach(renta => {
+                    if (renta.estado === 1) {
+                        vehiculosRentados.push(renta.vehiculo);
+                    }
+                });
     
                 document.querySelectorAll("#vehiculo, #editVehiculo").forEach(select => {
-                    Array.from(select.options).forEach(option => {
-                        if (vehiculosRentados.has(parseInt(option.value))) {
+                    select.querySelectorAll("option").forEach(option => {
+                        let idVehiculo = parseInt(option.value);
+                        
+                        if (vehiculosRentados.includes(idVehiculo)) {
                             option.style.display = "none"; 
                         } else {
                             option.style.display = "block"; 
@@ -56,6 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
     document.getElementById("crearRentaModal").addEventListener("show.bs.modal", filtrarVehiculosDisponibles);
     document.getElementById("editarRentaModal").addEventListener("show.bs.modal", filtrarVehiculosDisponibles);
+    
 
     function validarFecha(campo) {
         const fechaSeleccionada = new Date(campo.value);
@@ -212,6 +220,8 @@ document.addEventListener("DOMContentLoaded", function () {
     
     document.getElementById("guardarCambiosRenta").addEventListener("click", function () {
         const id = document.getElementById("editRentaId").value;
+        const estado = document.getElementById("editEstado").value;
+        const vehiculoId = document.getElementById("editVehiculo").value;
     
         const montoPorDia = document.getElementById("editMontoPorDia").value.trim();
         const cantidadDias = document.getElementById("editCantidadDias").value.trim();
@@ -242,7 +252,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!cantidadDias || isNaN(cantidadDias) || parseInt(cantidadDias) <= 0) {
             mostrarErrorCampo(document.getElementById("editCantidadDias"), "La cantidad de días debe ser un número positivo.");
         }
-
+    
         if (!validarFecha(fechaRenta)) {
             valido = false;
         }
@@ -250,7 +260,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!validarFecha(fechaDevolucion)) {
             valido = false;
         }
-    
     
         if (fechaRenta && fechaDevolucion && new Date(fechaRenta) > new Date(fechaDevolucion)) {
             mostrarErrorCampo(document.getElementById("editFechaDevolucion"), "La fecha de devolución debe ser posterior a la fecha de renta.");
@@ -260,8 +269,37 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
     
+        if (estado == "1") { 
+            fetch("/api/rentaDevolucion/")
+                .then(response => response.json())
+                .then(data => {
+                    const vehiculosOcupados = new Set();
+                    
+                    data.forEach(renta => {
+                        if (renta.estado == "1" && renta.id != id) {
+                            vehiculosOcupados.add(renta.vehiculo);
+                        }
+                    });
+    
+                    if (vehiculosOcupados.has(parseInt(vehiculoId))) {
+                        mostrarErrorCampo(document.getElementById("editEstado"), "No puedes activar esta renta porque el vehículo ya está en otra renta activa.");
+                        return;
+                    }
+    
+                    actualizarRenta(id, vehiculoId, estado, fechaRenta, fechaDevolucion, montoPorDia, cantidadDias);
+                })
+                .catch(error => {
+                    mostrarToast("danger", "Error al validar la renta.");
+                    console.error("Error:", error);
+                });
+        } else {
+            actualizarRenta(id, vehiculoId, estado, fechaRenta, fechaDevolucion, montoPorDia, cantidadDias);
+        }
+    });
+    
+    function actualizarRenta(id, vehiculoId, estado, fechaRenta, fechaDevolucion, montoPorDia, cantidadDias) {
         const rentaData = {
-            vehiculo: document.getElementById("editVehiculo").value,
+            vehiculo: vehiculoId,
             cliente: document.getElementById("editCliente").value,
             empleado: document.getElementById("editEmpleado").value,
             fecha_renta: fechaRenta,
@@ -269,7 +307,7 @@ document.addEventListener("DOMContentLoaded", function () {
             monto_por_dia: montoPorDia,
             cantidad_dias: cantidadDias,
             comentario: document.getElementById("editComentario").value,
-            estado: document.getElementById("editEstado").value
+            estado: estado
         };
     
         fetch(`/api/rentaDevolucion/${id}`, {
@@ -294,8 +332,7 @@ document.addEventListener("DOMContentLoaded", function () {
             mostrarToast("danger", "Error al actualizar la renta.");
             console.error("Error:", error);
         });
-    });
-    
+    }    
     
     document.querySelectorAll(".btn-eliminar").forEach(button => {
         button.addEventListener("click", function () {
