@@ -3,25 +3,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function filtrarUsuariosDisponibles() {
         fetch("/api/empleado/")
-            .then(response => response.json())
-            .then(data => {
-                const usuariosAsignados = new Set(data.map(emp => emp.usuario));
-
-                document.querySelectorAll("#usuario, #editUsuario").forEach(select => {
-                    Array.from(select.options).forEach(option => {
-                        if (usuariosAsignados.has(parseInt(option.value))) {
-                            option.style.display = "none"; 
-                        } else {
-                            option.style.display = "block"; 
-                        }
-                    });
+        .then(response => response.json())
+        .then(data => {
+            let UsuariosAsignados = [];
+            data.forEach(empleado => {
+                if (empleado.estado === 1) {
+                    UsuariosAsignados.push(empleado.usuario);
+                }
+            });
+               
+            document.querySelectorAll("#usuario, #editUsuario").forEach(select => {
+                select.querySelectorAll("option").forEach(option => {
+                    let idUsuario = parseInt(option.value);
+                    
+                    if (UsuariosAsignados.includes(idUsuario)) {
+                        option.style.display = "none"; 
+                    } else {
+                        option.style.display = "block"; 
+                    }
                 });
-            })
-            .catch(error => console.error("Error al cargar empleados:", error));
+            });
+        })
+        .catch(error => console.error("Error al cargar rentas:", error));
     }
-
+    
     document.getElementById("crearEmpleadoModal").addEventListener("show.bs.modal", filtrarUsuariosDisponibles);
     document.getElementById("editarEmpleadoModal").addEventListener("show.bs.modal", filtrarUsuariosDisponibles);
+     
 
     function setFormattedDate(inputId, dateValue) {
         if (dateValue) {

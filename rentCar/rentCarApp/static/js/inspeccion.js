@@ -2,25 +2,32 @@ document.addEventListener("DOMContentLoaded", function () {
     
     function filtrarVehiculosDisponibles() {
         fetch("/api/inspeccion/")
-            .then(response => response.json())
-            .then(data => {
-                const vehiculosInspeccionados = new Set(data.map(inspeccion => inspeccion.vehiculo));
-    
-                document.querySelectorAll("#vehiculo, #editVehiculo").forEach(select => {
-                    Array.from(select.options).forEach(option => {
-                        if (vehiculosInspeccionados.has(parseInt(option.value))) {
-                            option.style.display = "none"; 
-                        } else {
-                            option.style.display = "block"; 
-                        }
-                    });
+        .then(response => response.json())
+        .then(data => {
+            let vehiculosInpeccionados = [];
+            data.forEach(inspeccion => {
+                if (inspeccion.estado === 1) {
+                    vehiculosInpeccionados.push(inspeccion.vehiculo);
+                }
+            });
+               
+            document.querySelectorAll("#vehiculo, #editVehiculo").forEach(select => {
+                select.querySelectorAll("option").forEach(option => {
+                    let idVehiculo = parseInt(option.value);
+                    
+                    if (vehiculosInpeccionados.includes(idVehiculo)) {
+                        option.style.display = "none"; 
+                    } else {
+                        option.style.display = "block"; 
+                    }
                 });
-            })
-            .catch(error => console.error("Error al cargar inspecciones:", error));
+            });
+        })
+        .catch(error => console.error("Error al cargar rentas:", error));
     }
-    
     document.getElementById("crearInspeccionModal").addEventListener("show.bs.modal", filtrarVehiculosDisponibles);
     document.getElementById("editarInspeccionModal").addEventListener("show.bs.modal", filtrarVehiculosDisponibles);
+    
 
     function filtrarClientesDisponibles() {
         fetch("/api/inspeccion/")

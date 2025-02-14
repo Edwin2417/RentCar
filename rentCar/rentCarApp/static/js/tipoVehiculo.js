@@ -1,12 +1,46 @@
 document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById('guardartipoVehiculo').addEventListener('click', function () {
-        const descripcion = document.getElementById('descripcion').value.trim();
-        const estado = document.getElementById('estado').value;
 
-        if (!descripcion) {
-            mostrarToast('warning', 'La descripción es obligatoria.');
-            return;
+    function mostrarErrorCampo(input, mensaje) {
+        input.classList.add("is-invalid");
+        let errorDiv = input.nextElementSibling;
+        if (!errorDiv || !errorDiv.classList.contains("invalid-feedback")) {
+            errorDiv = document.createElement("div");
+            errorDiv.classList.add("invalid-feedback");
+            input.parentNode.appendChild(errorDiv);
         }
+        errorDiv.textContent = mensaje;
+    }
+
+    function limpiarErrorCampo(campo) {
+        let errorDiv = campo.nextElementSibling;
+        if (errorDiv && errorDiv.classList.contains("invalid-feedback")) {
+            errorDiv.remove();
+            campo.classList.remove("is-invalid");
+        }
+    }
+
+    document.querySelectorAll("input, select").forEach(campo => {
+        campo.addEventListener("input", function () {
+            limpiarErrorCampo(this);
+        });
+    });
+
+    document.getElementById('guardartipoVehiculo').addEventListener('click', function () {
+        const descripcion = document.getElementById('descripcion');
+        const estado = document.getElementById('estado');
+        let valido = true;
+
+        if (!descripcion.value.trim()) {
+            mostrarErrorCampo(descripcion, "La descripción es obligatoria.");
+            valido = false;
+        }
+
+        if (!estado.value.trim()) {
+            mostrarErrorCampo(estado, "El estado es obligatorio.");
+            valido = false;
+        }
+
+        if (!valido) return;
 
         fetch('/api/tipoVehiculo/', {
             method: 'POST',
@@ -15,25 +49,25 @@ document.addEventListener("DOMContentLoaded", function () {
                 'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({
-                descripcion: descripcion,
-                estado: parseInt(estado)
+                descripcion: descripcion.value.trim(),
+                estado: parseInt(estado.value)
             })
         })
             .then(response => {
                 if (response.ok) {
                     return response.json();
                 } else {
-                    throw new Error('Error al guardar la tipoVehiculo.');
+                    throw new Error('Error al guardar el tipo de vehículo.');
                 }
             })
             .then(data => {
-                mostrarToast('success', data.message || 'tipoVehiculo agregada exitosamente.');
-                document.getElementById("creartipoVehiculoForm").reset(); 
+                mostrarToast('success', data.message || 'Tipo de vehículo agregado exitosamente.');
+                document.getElementById("creartipoVehiculoForm").reset();
 
                 const modal = bootstrap.Modal.getInstance(document.getElementById('creartipoVehiculoModal'));
                 modal.hide();
 
-                setTimeout(() => location.reload(), 1000); 
+                setTimeout(() => location.reload(), 1000);
             })
             .catch(error => {
                 mostrarToast('danger', error.message);
@@ -57,13 +91,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("editartipoVehiculo").addEventListener("click", function () {
         const id = this.dataset.id;
-        const descripcion = document.getElementById("editDescripcion").value.trim();
-        const estado = document.getElementById("editEstado").value;
+        const descripcion = document.getElementById("editDescripcion");
+        const estado = document.getElementById("editEstado");
+        let valido = true;
 
-        if (!descripcion) {
-            mostrarToast('warning', 'La descripción es obligatoria.');
-            return;
+        if (!descripcion.value.trim()) {
+            mostrarErrorCampo(descripcion, "La descripción es obligatoria.");
+            valido = false;
         }
+
+        if (!estado.value.trim()) {
+            mostrarErrorCampo(estado, "El estado es obligatorio.");
+            valido = false;
+        }
+
+        if (!valido) return;
 
         fetch(`/api/tipoVehiculo/${id}`, {
             method: "PUT",
@@ -72,18 +114,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 "X-CSRFToken": "{{ csrf_token }}"
             },
             body: JSON.stringify({
-                descripcion: descripcion,
-                estado: parseInt(estado) 
+                descripcion: descripcion.value.trim(),
+                estado: parseInt(estado.value)
             })
         })
-
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
                     mostrarToast('success', data.message);
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    mostrarToast('danger', 'Error al actualizar la tipoVehiculo.');
+                    mostrarToast('danger', 'Error al actualizar el tipo de vehículo.');
                 }
             })
             .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
@@ -96,10 +137,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const confirmarBtn = document.getElementById("confirmarEliminar");
             confirmarBtn.dataset.id = id;
 
-
             const modal = new bootstrap.Modal(document.getElementById("modalConfirmacion"));
             modal.show();
-
 
             confirmarBtn.onclick = function () {
                 fetch(`/api/tipoVehiculo/${id}`, {
@@ -114,7 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             mostrarToast('success', data.message);
                             setTimeout(() => location.reload(), 1000);
                         } else {
-                            mostrarToast('danger', 'Error al eliminar la tipoVehiculo.');
+                            mostrarToast('danger', 'Error al eliminar el tipo de vehículo.');
                         }
                     })
                     .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
