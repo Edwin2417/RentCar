@@ -51,77 +51,82 @@ document.addEventListener("DOMContentLoaded", function () {
     // document.getElementById("crearInspeccionModal").addEventListener("show.bs.modal", filtrarClientesDisponibles);
     // document.getElementById("editarInspeccionModal").addEventListener("show.bs.modal", filtrarClientesDisponibles);
     
-    function validarFecha(campo) {
-        const fechaSeleccionada = new Date(campo.value);
-        const fechaActual = new Date();
+    // function validarFecha(campo) {
+    //     const fechaSeleccionada = new Date(campo.value);
+    //     const fechaActual = new Date();
         
-        // Ajustar la fecha actual para ignorar la hora y comparar solo la fecha
-        fechaActual.setHours(0, 0, 0, 0);
+    //     // Ajustar la fecha actual para ignorar la hora y comparar solo la fecha
+    //     fechaActual.setHours(0, 0, 0, 0);
 
-        if (fechaSeleccionada < fechaActual) {
-            mostrarErrorCampo(campo, "La fecha de inspección no puede ser anterior a hoy.");
-            return false;
-        }
-        return true;
-    }
+    //     if (fechaSeleccionada < fechaActual) {
+    //         mostrarErrorCampo(campo, "La fecha de inspección no puede ser anterior a hoy.");
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
     function validarFormularioInspeccion(formulario) {
+        let valido = true;
+    
         const vehiculo = formulario.querySelector("#vehiculo, #editVehiculo");
         const cliente = formulario.querySelector("#cliente, #editCliente");
         const empleado_inspeccion = formulario.querySelector("#empleado, #editEmpleado");
         const fecha = formulario.querySelector("#fecha, #editFecha");
         const cantidad_combustible = formulario.querySelector("#cantidad_combustible, #editCantidadCombustible");
         const estado = formulario.querySelector("#estado, #editEstado");
-        
-        let valido = true;
-
-        [vehiculo, cliente, empleado_inspeccion, fecha, cantidad_combustible, estado].forEach(campo => {
+    
+        // Lista de campos a validar
+        const campos = [vehiculo, cliente, empleado_inspeccion, fecha, cantidad_combustible, estado];
+    
+        // Validar cada campo
+        campos.forEach(campo => {
             if (!campo.value.trim()) {
                 mostrarErrorCampo(campo, "Este campo es obligatorio.");
                 valido = false;
+            } else {
+                limpiarErrorCampo(campo); // Si el campo es válido, limpiamos el error
             }
         });
-
-        // Validar que la fecha no sea anterior a hoy
-        if (!validarFecha(fecha)) {
-            valido = false;
-        }
-
+    
         return valido;
     }
-
+    
+    // Función para mostrar error en un campo
     function mostrarErrorCampo(input, mensaje) {
         input.classList.add("is-invalid");
-            let errorDiv = input.nextElementSibling;
-            if (!errorDiv || !errorDiv.classList.contains("invalid-feedback")) {
-                errorDiv = document.createElement("div");
-                errorDiv.classList.add("invalid-feedback");
-                input.parentNode.appendChild(errorDiv);
-            }
-            errorDiv.textContent = mensaje;
-            valido = false;
+        input.classList.remove("is-valid");
+    
+        let errorDiv = input.nextElementSibling;
+        if (!errorDiv || !errorDiv.classList.contains("invalid-feedback")) {
+            errorDiv = document.createElement("div");
+            errorDiv.classList.add("invalid-feedback");
+            input.parentNode.appendChild(errorDiv);
+        }
+        errorDiv.textContent = mensaje;
     }
-
-    function limpiarErrorCampo(campo) {
-        let errorSpan = campo.nextElementSibling;
-        if (errorSpan && errorSpan.classList.contains("error-message")) {
-            errorSpan.remove();
+    
+    // Función para limpiar el error si el campo es válido
+    function limpiarErrorCampo(input) {
+        input.classList.remove("is-invalid");
+        input.classList.add("is-valid");
+    
+        let errorDiv = input.nextElementSibling;
+        if (errorDiv && errorDiv.classList.contains("invalid-feedback")) {
+            errorDiv.textContent = "";
         }
     }
-
-    function mostrarToast(tipo, mensaje) {
-        const toastEl = document.getElementById(`toast${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
-        toastEl.querySelector('.toast-body').innerText = mensaje;
-        const toast = new bootstrap.Toast(toastEl);
-        toast.show();
-    }
-
-    document.querySelectorAll("input, select").forEach(campo => {
-        campo.addEventListener("input", function () {
-            limpiarErrorCampo(this);
+    
+    // Agregar validación en tiempo real (cada vez que el usuario escribe)
+    document.querySelectorAll("#formInspeccion input, #formInspeccion select").forEach(input => {
+        input.addEventListener("input", () => {
+            if (input.value.trim()) {
+                limpiarErrorCampo(input);
+            } else {
+                mostrarErrorCampo(input, "Este campo es obligatorio.");
+            }
         });
     });
-
+    
     document.getElementById('guardarInspeccion').addEventListener('click', function () {
         const form = document.getElementById("crearInspeccionForm");
         if (!validarFormularioInspeccion(form)) return;
@@ -185,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".btn-editar").forEach(button => {
         button.addEventListener("click", function () {
             const id = this.dataset.id;
-        
+    
             fetch(`/api/inspeccion/${id}`)
                 .then(response => {
                     if (!response.ok) {
@@ -201,14 +206,22 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.getElementById("editFecha").value = data.fecha;
                     document.getElementById("editCantidadCombustible").value = data.cantidad_combustible;
                     document.getElementById("editEstado").value = data.estado;
-        
+    
+                    const selectEstado = document.getElementById("editEstado");
+    
+                    if (String(data.estado).toLowerCase() === "inactivo" || String(data.estado) === "2") {
+                        selectEstado.disabled = true;
+                    } else {
+                        selectEstado.disabled = false;
+                    }
+
                     document.querySelectorAll("#editarInspeccionModal input[type=checkbox]").forEach(checkbox => {
                         const prop = checkbox.getAttribute("data-prop"); 
                         if (prop && data.hasOwnProperty(prop)) {
                             checkbox.checked = Boolean(data[prop]); 
                         }
                     });
-        
+    
                     new bootstrap.Modal(document.getElementById("editarInspeccionModal")).show();
                 })
                 .catch(error => {
@@ -218,66 +231,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
     
+    
     document.getElementById("guardarCambiosInspeccion").addEventListener("click", function () {
         const id = document.getElementById("editId").value;
-        const estado = document.getElementById("editEstado").value;
-        const fechaCampo = document.getElementById("editFecha");
-        const fechaSeleccionada = new Date(fechaCampo.value);
-        const fechaHoy = new Date();
-        fechaHoy.setHours(0, 0, 0, 0);
-        let valido = true;
-    
-        function mostrarErrorCampo(input, mensaje) {
-            input.classList.add("is-invalid");
-            let errorDiv = input.nextElementSibling;
-            if (!errorDiv || !errorDiv.classList.contains("invalid-feedback")) {
-                errorDiv = document.createElement("div");
-                errorDiv.classList.add("invalid-feedback");
-                input.parentNode.appendChild(errorDiv);
-            }
-            errorDiv.textContent = mensaje;
-            valido = false;
-        }
-    
-        document.querySelectorAll(".is-invalid").forEach(elemento => elemento.classList.remove("is-invalid"));
-        document.querySelectorAll(".invalid-feedback").forEach(elemento => elemento.remove());
-    
-        if (fechaSeleccionada < fechaHoy) {
-            mostrarErrorCampo(fechaCampo, "La fecha de inspección no puede ser anterior a hoy.");
-        }
-    
-        if (!valido) {
-            return;
-        }
-    
-        if (estado == "1") { 
-            fetch("/api/inspeccion/")
-                .then(response => response.json())
-                .then(data => {
-                    const inspeccionesActivas = new Set();
-                    data.forEach(inspeccion => {
-                        if (inspeccion.estado == "1" && inspeccion.id != id) {
-                            inspeccionesActivas.add(inspeccion.vehiculo);
-                        }
-                    });
-    
-                    if (inspeccionesActivas.has(parseInt(document.getElementById("editVehiculo").value))) {
-                        mostrarErrorCampo(document.getElementById("editEstado"), "No puedes activar esta inspección porque el vehículo ya tiene una inspección activa.");
-                        return;
-                    }
-    
-                    actualizarInspeccion(id);
-                })
-                .catch(error => {
-                    mostrarToast("danger", "Error al validar la inspección.");
-                    console.error("Error:", error);
-                });
-        } else {
-            actualizarInspeccion(id);
-        }
-    });
-    
-    function actualizarInspeccion(id) {
+        
+
         const inspeccionData = {
             vehiculo: document.getElementById("editVehiculo").value,
             cliente: document.getElementById("editCliente").value,
@@ -290,7 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll("#editarInspeccionModal input[type=checkbox]").forEach(checkbox => {
             const prop = checkbox.getAttribute("data-prop");
             if (prop) {
-                inspeccionData[prop] = checkbox.checked;
+                inspeccionData[prop] = checkbox.checked; 
             }
         });
     
@@ -316,7 +274,8 @@ document.addEventListener("DOMContentLoaded", function () {
             mostrarToast("danger", "Error al actualizar la inspección.");
             console.error("Error:", error);
         });
-    }
+    });
+    
     
 
     document.querySelectorAll(".btn-eliminar").forEach(button => {

@@ -1,44 +1,54 @@
 document.addEventListener("DOMContentLoaded", function () {
     function mostrarErrorCampo(input, mensaje) {
         input.classList.add("is-invalid");
-            let errorDiv = input.nextElementSibling;
-            if (!errorDiv || !errorDiv.classList.contains("invalid-feedback")) {
-                errorDiv = document.createElement("div");
-                errorDiv.classList.add("invalid-feedback");
-                input.parentNode.appendChild(errorDiv);
-            }
-            errorDiv.textContent = mensaje;
-            valido = false;
+        input.classList.remove("is-valid");
+
+        let errorDiv = input.nextElementSibling;
+        if (!errorDiv || !errorDiv.classList.contains("invalid-feedback")) {
+            errorDiv = document.createElement("div");
+            errorDiv.classList.add("invalid-feedback");
+            input.parentNode.appendChild(errorDiv);
+        }
+        errorDiv.textContent = mensaje;
     }
 
+    function limpiarErrorCampo(input) {
+        input.classList.remove("is-invalid");
+        input.classList.add("is-valid");
 
-    function limpiarErrorCampo(campo) {
-        let errorSpan = campo.nextElementSibling;
-        if (errorSpan && errorSpan.classList.contains("error-message")) {
-            errorSpan.remove();
+        let errorDiv = input.nextElementSibling;
+        if (errorDiv && errorDiv.classList.contains("invalid-feedback")) {
+            errorDiv.textContent = "";
         }
     }
 
     document.querySelectorAll("input, select").forEach(campo => {
         campo.addEventListener("input", function () {
-            limpiarErrorCampo(this);
+            if (this.value.trim()) {
+                limpiarErrorCampo(this);
+            } else {
+                mostrarErrorCampo(this, "Este campo es obligatorio.");
+            }
         });
     });
 
     document.getElementById('guardartipoCombustible').addEventListener('click', function () {
-        const descripcion = document.getElementById('descripcion').value.trim();
-        const estado = document.getElementById('estado').value;
+        const descripcion = document.getElementById('descripcion');
+        const estado = document.getElementById('estado');
         let valido = true;
-
 
         if (!descripcion.value.trim()) {
             mostrarErrorCampo(descripcion, "La descripción es obligatoria.");
             valido = false;
+        } else {
+            limpiarErrorCampo(descripcion);
         }
 
         if (!estado.value.trim()) {
             mostrarErrorCampo(estado, "El estado es obligatorio.");
             valido = false;
+        } else {
+            limpiarErrorCampo(estado);
         }
 
         if (!valido) return;
@@ -50,29 +60,25 @@ document.addEventListener("DOMContentLoaded", function () {
                 'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({
-                descripcion: descripcion,
-                estado: parseInt(estado)
+                descripcion: descripcion.value,
+                estado: parseInt(estado.value)
             })
         })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Error al guardar la tipoCombustible.');
-                }
-            })
-            .then(data => {
-                mostrarToast('success', data.message || 'tipoCombustible agregada exitosamente.');
-                document.getElementById("creartipoCombustibleForm").reset(); 
+        .then(response => response.json())
+        .then(data => {
+            if (response.ok) {
+                mostrarToast('success', data.message || 'Tipo de combustible agregado exitosamente.');
+                document.getElementById("creartipoCombustibleForm").reset();
 
                 const modal = bootstrap.Modal.getInstance(document.getElementById('creartipoCombustibleModal'));
                 modal.hide();
 
-                setTimeout(() => location.reload(), 1000); 
-            })
-            .catch(error => {
-                mostrarToast('danger', error.message);
-            });
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                mostrarToast('danger', data.error || 'Error al guardar el tipo de combustible.');
+            }
+        })
+        .catch(error => mostrarToast('danger', 'Error inesperado al procesar los datos.'));
     });
 
     document.querySelectorAll(".btn-editar").forEach(button => {
@@ -92,17 +98,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("editartipoCombustible").addEventListener("click", function () {
         const id = this.dataset.id;
-        const descripcion = document.getElementById("editDescripcion").value.trim();
-        const estado = document.getElementById("editEstado").value;
+        const descripcion = document.getElementById("editDescripcion");
+        const estado = document.getElementById("editEstado");
+        let valido = true;
 
         if (!descripcion.value.trim()) {
             mostrarErrorCampo(descripcion, "La descripción es obligatoria.");
             valido = false;
+        } else {
+            limpiarErrorCampo(descripcion);
         }
 
         if (!estado.value.trim()) {
             mostrarErrorCampo(estado, "El estado es obligatorio.");
             valido = false;
+        } else {
+            limpiarErrorCampo(estado);
         }
 
         if (!valido) return;
@@ -114,21 +125,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 "X-CSRFToken": "{{ csrf_token }}"
             },
             body: JSON.stringify({
-                descripcion: descripcion,
-                estado: parseInt(estado) 
+                descripcion: descripcion.value,
+                estado: parseInt(estado.value)
             })
         })
-
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    mostrarToast('success', data.message);
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    mostrarToast('danger', 'Error al actualizar la tipoCombustible.');
-                }
-            })
-            .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                mostrarToast('success', data.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                mostrarToast('danger', 'Error al actualizar el tipo de combustible.');
+            }
+        })
+        .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
     });
 
     document.querySelectorAll(".btn-eliminar").forEach(button => {
@@ -148,16 +158,16 @@ document.addEventListener("DOMContentLoaded", function () {
                         "X-CSRFToken": "{{ csrf_token }}"
                     }
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.message) {
-                            mostrarToast('success', data.message);
-                            setTimeout(() => location.reload(), 1000);
-                        } else {
-                            mostrarToast('danger', 'Error al eliminar la tipoCombustible.');
-                        }
-                    })
-                    .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        mostrarToast('success', data.message);
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        mostrarToast('danger', 'Error al eliminar el tipo de combustible.');
+                    }
+                })
+                .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
             };
         });
     });
