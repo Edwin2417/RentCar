@@ -15,7 +15,6 @@ def empleadoView(request):
     
     empleados_serializer = EmpleadoSerializer(page_obj, many=True)
     
-    # Formatear fecha antes de enviar al template
     for empleado in empleados_serializer.data:
         if empleado.get("fecha_ingreso"):
             empleado["fecha_ingreso"] = datetime.strptime(empleado["fecha_ingreso"], "%Y-%m-%d").strftime("%m/%d/%Y")

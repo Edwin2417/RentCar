@@ -104,7 +104,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Función para manejar la EDICIÓN de un vehículo
     document.querySelectorAll(".btn-editar").forEach(button => {
         button.addEventListener("click", function () {
             const id = this.dataset.id;
@@ -124,7 +123,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Guardar cambios del vehículo editado
     document.getElementById("editarVehiculo").addEventListener("click", function () {
         const form = document.getElementById("editarVehiculoForm");
         if (!validarFormulario(form)) return;
@@ -152,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
             .then(response => {
                 if (!response.ok) {
-                    manejarErroresDuplicados(response, form);  // Maneja los errores del backend
+                    manejarErroresDuplicados(response, form);  
                     throw new Error("Error en la actualización del vehículo.");
                 }
                 return response.json();
@@ -166,7 +164,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => mostrarToast("danger", "Error al actualizar el vehículo."));
     });
 
-    // Función para ELIMINAR un vehículo
     document.querySelectorAll(".btn-eliminar").forEach(button => {
         button.addEventListener("click", function () {
             const id = this.dataset.id;
@@ -198,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// Función para mostrar un toast
+
 function mostrarToast(tipo, mensaje) {
     const toastEl = document.getElementById(`toast${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
     toastEl.querySelector('.toast-body').innerText = mensaje;

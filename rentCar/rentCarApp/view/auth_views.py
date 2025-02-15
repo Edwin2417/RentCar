@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.utils.timezone import now
 import requests
 
-API_URL = 'http://127.0.0.1:8000/api/usuario/'  # URL de la API de usuarios
+API_URL = 'http://127.0.0.1:8000/api/usuario/' 
 
 def login_view(request):
     if request.method == 'POST':
@@ -17,21 +17,25 @@ def login_view(request):
         else:
             try:
                 response = requests.get(API_URL)
-                print(f"API Response Status: {response.status_code}")  # Ver el estado de la API
-                print(f"API Response Data: {response.json()}")  # Ver los datos devueltos
+                print(f"API Response Status: {response.status_code}")  
+                print(f"API Response Data: {response.json()}") 
 
                 if response.status_code == 200:
                     users = response.json()
                     user = next((u for u in users if u['nombre_usuario'] == username), None)
 
                     if user:
-                        print(f"Usuario encontrado: {user}")  # Verificar si encuentra usuario
+                        print(f"Usuario encontrado: {user}")  
                         if user['contrasena'] == password:
-                            request.session['user_id'] = user['identificador']
-                            request.session['user_name'] = user['nombre_usuario']
-                            request.session['user_role'] = user['rol']
-                            request.session.set_expiry(60 * 60 * 24 * 7)  # Sesión expira en 7 días
-                            return redirect('loading')
+                            # Verificar si el usuario está activo
+                            if user['estado'] == 1:
+                                request.session['user_id'] = user['identificador']
+                                request.session['user_name'] = user['nombre_usuario']
+                                request.session['user_role'] = user['rol']
+                                request.session.set_expiry(60 * 60 * 24 * 7)  
+                                return redirect('loading')
+                            else:
+                                messages.error(request, 'El usuario está inactivo.')
                         else:
                             messages.error(request, 'Contraseña incorrecta.')
                     else:

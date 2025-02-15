@@ -9,11 +9,13 @@ from rentCarApp.view.vehiculos_views import vehiculoView
 from rentCarApp.view.usuario_views import usuarioView
 from rentCarApp.view.cliente_view import clienteView
 from rentCarApp.view.empleado_view import empleadoView
+from rentCarApp.view.inspeccion_view import inspeccionView
+from rentCarApp.view.rentaDevolucion_view import renta_devolucion_view
 
 urlpatterns = [
-    path('', login_view, name='login'),  # Página de inicio de sesión
-    path('home/', home_view, name='home'),  # Página principal después del login
-    path('logout/', logout_view, name='logout'),  # Cerrar sesión
+    path('', login_view, name='login'),  
+    path('home/', home_view, name='home'),  
+    path('logout/', logout_view, name='logout'), 
     path('loading/', loading_view, name='loading'),
     path('marcas/', marcasView, name='marcasView'),
     path('modelos/', modelosView, name='modelosView'),
@@ -23,4 +25,7 @@ urlpatterns = [
     path('usuarios/', usuarioView, name='usuarioView'),
     path('clientes/', clienteView, name='clienteView'),
     path('empleados/', empleadoView, name='empleadoView'),
+    path('inspecciones/', inspeccionView, name='inspeccionView'),
+    path('rentaDevolucion/', renta_devolucion_view, name='renta_devolucion_view'),
+    
 ]

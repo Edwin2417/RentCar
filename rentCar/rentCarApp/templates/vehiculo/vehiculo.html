@@ -8,6 +8,10 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="text-white">Vehículos</h2>
+        <div class="input-group" style="width: 300px;">
+            <input type="text" id="buscadorVehiculos" class="form-control rounded-pill"
+                placeholder="Buscar por descripción o placa">
+        </div>
         <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
             data-bs-target="#crearVehiculoModal">Crear Vehículo</a>
     </div>
@@ -30,13 +34,13 @@
         </thead>
         <tbody>
             {% for vehiculo in vehiculos %}
-            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+            <tr class="vehiculo-row" style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
                 <td class="py-3">{{ vehiculo.identificador }}</td>
-                <td class="py-3">{{ vehiculo.descripcion }}</td>
+                <td class="py-3 descripcion-vehiculo">{{ vehiculo.descripcion }}</td>
                 <td class="py-3">{{ vehiculo.no_chasis }}</td>
                 <td class="py-3">{{ vehiculo.no_motor }}</td>
-                <td class="py-3">{{ vehiculo.no_placa }}</td>
-        
+                <td class="py-3 placa-vehiculo">{{ vehiculo.no_placa }}</td>
+
                 <!-- Tipo de Vehículo -->
                 <td class="py-3">
                     {% for tipo in tipos_vehiculo %}
@@ -81,19 +85,14 @@
                         {% endif %}
                     {% endfor %}
                 </td>
-        
+
                 <td class="py-3">
                     <div class="acciones-btns">
-                        <button class="btn btn-warning text-white btn-editar"
-                            data-id="{{ vehiculo.identificador }}"
-                            data-descripcion="{{ vehiculo.descripcion }}"
-                            data-no_chasis="{{ vehiculo.no_chasis }}"
-                            data-no_motor="{{ vehiculo.no_motor }}"
-                            data-no_placa="{{ vehiculo.no_placa }}"
-                            data-tipo_vehiculo="{{ vehiculo.tipo_vehiculo }}"
-                            data-marca="{{ vehiculo.marca }}"
-                            data-modelo="{{ vehiculo.modelo }}"
-                            data-tipo_combustible="{{ vehiculo.tipo_combustible }}"
+                        <button class="btn btn-warning text-white btn-editar" data-id="{{ vehiculo.identificador }}"
+                            data-descripcion="{{ vehiculo.descripcion }}" data-no_chasis="{{ vehiculo.no_chasis }}"
+                            data-no_motor="{{ vehiculo.no_motor }}" data-no_placa="{{ vehiculo.no_placa }}"
+                            data-tipo_vehiculo="{{ vehiculo.tipo_vehiculo }}" data-marca="{{ vehiculo.marca }}"
+                            data-modelo="{{ vehiculo.modelo }}" data-tipo_combustible="{{ vehiculo.tipo_combustible }}"
                             data-estado="{{ vehiculo.estado }}">
                             <i class="bi bi-pencil-fill"></i>
                         </button>
@@ -108,7 +107,7 @@
                 <td colspan="11" class="text-center py-4">No hay vehículos disponibles</td>
             </tr>
             {% endfor %}
-        </tbody>        
+        </tbody>
     </table>
 </div>
 
@@ -117,5 +116,23 @@
 {% include "vehiculo/vehiculo_modals.html" %}
 
 <script src="{% static 'js/vehiculo.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let buscador = document.getElementById("buscadorVehiculos");
+        let filas = document.querySelectorAll(".vehiculo-row");
+
+        if (buscador) {
+            buscador.addEventListener("input", function () {
+                let filtro = this.value.trim().toLowerCase();
+
+                filas.forEach(row => {
+                    let descripcion = row.querySelector(".descripcion-vehiculo").textContent.toLowerCase();
+                    let placa = row.querySelector(".placa-vehiculo").textContent.toLowerCase();
+                    row.style.display = (descripcion.includes(filtro) || placa.includes(filtro)) ? "" : "none";
+                });
+            });
+        }
+    });
+</script>
 
 {% endblock %}

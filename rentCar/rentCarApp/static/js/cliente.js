@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function aplicarMascara(input, mascara) {
         input.addEventListener("input", function () {
-            let valor = input.value.replace(/\D/g, ""); // Elimina todo lo que no sea número
+            let valor = input.value.replace(/\D/g, ""); 
             let resultado = "";
             let indice = 0;
 
@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Aplica la máscara en los diferentes formularios (Crear y Editar Cliente)
     const cedulaInputs = document.querySelectorAll("#cedula, #editCedula");
     const tarjetaInputs = document.querySelectorAll("#no_tarjeta_cr, #editNoTarjetaCR");
 

@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Inspecciones | Indexing Car Rental{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-white">Inspecciones</h2>
+        <div class="input-group" style="width: 300px;">
+            <input type="text" id="buscadorInspecciones" class="form-control rounded-pill"
+                placeholder="Buscar por vehículo o cliente">
+        </div>
+        <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
+            data-bs-target="#crearInspeccionModal">Crear Inspección</a>
+    </div>
+
+    <table class="table table-hover align-middle" style="background-color: #121212; color: white; width: 100%;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <th class="py-3">ID</th>
+                <th class="py-3">Vehículo</th>
+                <th class="py-3">Cliente</th>
+                <th class="py-3">Empleado</th>
+                <th class="py-3">Fecha</th>
+                <th class="py-3">Combustible</th>
+                <th class="py-3">Ralladuras</th>
+                <th class="py-3">Goma Resp.</th>
+                <th class="py-3">Gato</th>
+                <th class="py-3">Roturas Cristal</th>
+                <th class="py-3">Estado Gomas</th>
+                <th class="py-3">Estado</th>
+                <th class="py-3">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inspeccion in inspecciones %}
+            <tr class="inspeccion-row" style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td class="py-3">{{ inspeccion.identificador }}</td>
+                <td class="py-3 descripcion-vehiculo">
+                    {% for vehiculo in vehiculos %}
+                        {% if vehiculo.identificador == inspeccion.vehiculo %}
+                            {{ vehiculo.descripcion }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                
+                <td class="py-3 cliente-inspeccion">
+                    {% for cliente in clientes %}
+                        {% if cliente.identificador == inspeccion.cliente %}
+                            {{ cliente.nombre }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                
+                <td class="py-3">
+                    {% for empleado in empleados %}
+                        {% if empleado.identificador == inspeccion.empleado_inspeccion %}
+                            {{ empleado.nombre }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                
+                <td class="py-3">{{ inspeccion.fecha }}</td>
+                <td class="py-3">{{ inspeccion.cantidad_combustible }}</td>
+
+                <!-- Ralladuras -->
+                <td class="py-3">
+                    {% if inspeccion.tiene_ralladuras %}
+                    ✅
+                    {% else %}
+                    ❌
+                    {% endif %}
+                </td>
+
+                <!-- Goma de repuesto -->
+                <td class="py-3">
+                    {% if inspeccion.tiene_goma_respuesta %}
+                    ✅
+                    {% else %}
+                    ❌
+                    {% endif %}
+                </td>
+
+                <!-- Gato -->
+                <td class="py-3">
+                    {% if inspeccion.tiene_gato %}
+                    ✅
+                    {% else %}
+                    ❌
+                    {% endif %}
+                </td>
+
+                <!-- Roturas en cristales -->
+                <td class="py-3">
+                    {% if inspeccion.tiene_roturas_cristal %}
+                    ✅
+                    {% else %}
+                    ❌
+                    {% endif %}
+                </td>
+
+                <!-- Estado de las gomas -->
+                <td class="py-3">
+                    {% with gomas_buenas=inspeccion.goma_delantera_izquierda|add:inspeccion.goma_delantera_derecha|add:inspeccion.goma_trasera_izquierda|add:inspeccion.goma_trasera_derecha %}
+                        {% if gomas_buenas == 4 %}
+                            ✅ Todas en buen estado (4/4)
+                        {% elif gomas_buenas == 3 %}
+                            ⚠️ Tres en buen estado (3/4)
+                        {% elif gomas_buenas == 2 %}
+                            ⚠️ Dos en buen estado (2/4)
+                        {% elif gomas_buenas == 1 %}
+                            ❌ Solo una en buen estado (1/4)
+                        {% else %}
+                            ❌ Ninguna en buen estado (0/4)
+                        {% endif %}
+                    {% endwith %}
+                </td>
+                
+                
+
+                <!-- Estado -->
+                <td class="py-3">
+                    {% for estado in estados %}
+                        {% if estado.identificador == inspeccion.estado %}
+                            <span class="badge bg-{% if estado.identificador == 1 %}success{% else %}danger{% endif %} rounded-pill px-3 py-2">{{ estado.descripcion }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+
+                <!-- Acciones -->
+                <td class="py-3">
+                    <div class="acciones-btns">
+                        <button class="btn btn-warning text-white btn-editar" data-id="{{ inspeccion.identificador }}">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button class="btn btn-danger text-white btn-eliminar" data-id="{{ inspeccion.identificador }}">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td colspan="13" class="text-center py-4">No hay inspecciones disponibles</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include "paginator.html" %}
+{% include "toasts.html" %}
+{% include "inspeccion/inspeccion_modals.html" %}
+
+<script src="{% static 'js/inspeccion.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let buscador = document.getElementById("buscadorInspecciones");
+        let filas = document.querySelectorAll(".inspeccion-row");
+
+        if (buscador) {
+            buscador.addEventListener("input", function () {
+                let filtro = this.value.trim().toLowerCase();
+
+                filas.forEach(row => {
+                    let vehiculo = row.querySelector(".descripcion-vehiculo").textContent.toLowerCase();
+                    let cliente = row.querySelector(".cliente-inspeccion").textContent.toLowerCase();
+                    row.style.display = (vehiculo.includes(filtro) || cliente.includes(filtro)) ? "" : "none";
+                });
+            });
+        }
+    });
+</script>
+
+{% endblock %}

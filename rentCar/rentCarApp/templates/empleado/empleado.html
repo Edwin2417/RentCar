@@ -8,8 +8,10 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="text-white">Empleados</h2>
-        <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
-            data-bs-target="#crearEmpleadoModal">Crear Empleado</a>
+        <div class="input-group" style="width: 300px;">
+            <input type="text" id="buscadorEmpleados" class="form-control rounded-pill" placeholder="Buscar por nombre, cédula o tanda">
+        </div>
+        <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#crearEmpleadoModal">Crear Empleado</a>
     </div>
 
     <table class="table table-hover align-middle" style="background-color: #121212; color: white; width: 100%;">
@@ -21,18 +23,18 @@
                 <th class="py-3">Tanda Laboral</th>
                 <th class="py-3">Porciento Comisión</th>
                 <th class="py-3">Fecha Ingreso</th>
-                <th class="py-3">Estado</th>
                 <th class="py-3">Usuario</th>
+                <th class="py-3">Estado</th>
                 <th class="py-3">Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for empleado in empleados %}
-            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+            <tr class="empleado-row" style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
                 <td class="py-3">{{ empleado.identificador }}</td>
-                <td class="py-3">{{ empleado.nombre }}</td>
-                <td class="py-3">{{ empleado.cedula }}</td>
-                <td class="py-3">{{ empleado.tanda_labor }}</td>
+                <td class="py-3 nombre-empleado">{{ empleado.nombre }}</td>
+                <td class="py-3 cedula-empleado">{{ empleado.cedula }}</td>
+                <td class="py-3 tanda-labor-empleado">{{ empleado.tanda_labor }}</td>
                 <td class="py-3">{{ empleado.porciento_comision }}%</td>
                 <td class="py-3">{{ empleado.fecha_ingreso }}</td>
                 
@@ -86,5 +88,25 @@
 {% include "empleado/empleado_modals.html" %}
 
 <script src="{% static 'js/empleado.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let buscador = document.getElementById("buscadorEmpleados");
+        let filas = document.querySelectorAll(".empleado-row");
+
+        if (buscador) {
+            buscador.addEventListener("input", function () {
+                let filtro = this.value.trim().toLowerCase();
+
+                filas.forEach(row => {
+                    let nombreEmpleado = row.querySelector(".nombre-empleado").textContent.toLowerCase();
+                    let cedulaEmpleado = row.querySelector(".cedula-empleado").textContent.toLowerCase();
+                    let tandaLaborEmpleado = row.querySelector(".tanda-labor-empleado").textContent.toLowerCase();
+
+                    row.style.display = (nombreEmpleado.includes(filtro) || cedulaEmpleado.includes(filtro) || tandaLaborEmpleado.includes(filtro)) ? "" : "none";
+                });
+            });
+        }
+    });
+</script>
 
 {% endblock %}

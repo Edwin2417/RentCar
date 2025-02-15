@@ -1,16 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Tipos de Vehiculos | Indexing Car Rental{% endblock %}
+{% block title %}Tipos de Vehículos | Indexing Car Rental{% endblock %}
 
 {% load static %}
 
 {% block content %}
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="text-white">Tipos de Vehiculos</h2>
-        <!-- Botón para abrir el modal -->
+        <h2 class="text-white">Tipos de Vehículos</h2>
+        <div class="input-group" style="width: 300px;">
+            <input type="text" id="buscadorTiposVehiculo" class="form-control rounded-pill"
+                placeholder="Buscar por descripción">
+        </div>
         <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
-            data-bs-target="#creartipoVehiculoModal">Crear Tipo de Vehiculo</a>
+            data-bs-target="#creartipoVehiculoModal">Crear Tipo de Vehículo</a>
     </div>
 
     <table class="table table-hover align-middle" style="background-color: #121212; color: white; width: 100%;">
@@ -24,15 +27,19 @@
         </thead>
         <tbody>
             {% for tipoVehiculo in tipoVehiculos %}
-            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+            <tr class="tipoVehiculo-row" style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
                 <td class="py-3">{{ tipoVehiculo.identificador }}</td>
-                <td class="py-3">{{ tipoVehiculo.descripcion }}</td>
+                <td class="py-3 descripcion-tipoVehiculo">{{ tipoVehiculo.descripcion }}</td>
                 <td class="py-3">
-                    {% for estado in estados %}
-                        {% if estado.identificador == tipoVehiculo.estado %}
-                            <span class="badge bg-{% if estado.identificador == 1 %}success{% else %}danger{% endif %} rounded-pill px-3 py-2">{{ estado.descripcion }}</span>
-                        {% endif %}
-                    {% endfor %}
+                    {% with estados|dictsort:"identificador" as estados_ordenados %}
+                        {% for estado in estados_ordenados %}
+                            {% if estado.identificador == tipoVehiculo.estado %}
+                                <span class="badge bg-{% if estado.identificador == 1 %}success{% else %}danger{% endif %} rounded-pill px-3 py-2">
+                                    {{ estado.descripcion }}
+                                </span>
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
                 </td>
                 <td class="py-3">
                     <div class="acciones-btns">
@@ -48,7 +55,7 @@
             </tr>
             {% empty %}
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
-                <td colspan="4" class="text-center py-4">No hay Tipos de Vehiculos disponibles</td>
+                <td colspan="4" class="text-center py-4">No hay Tipos de Vehículos disponibles</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -56,11 +63,26 @@
 </div>
 
 {% include "paginator.html" %}
-
 {% include "toasts.html" %}
-
 {% include "tipoVehiculo/tipoVehiculo_modals.html" %}
 
 <script src="{% static 'js/tipoVehiculo.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let buscador = document.getElementById("buscadorTiposVehiculo");
+        let filas = document.querySelectorAll(".tipoVehiculo-row");
+
+        if (buscador) {
+            buscador.addEventListener("input", function () {
+                let filtro = this.value.trim().toLowerCase();
+
+                filas.forEach(row => {
+                    let descripcion = row.querySelector(".descripcion-tipoVehiculo").textContent.toLowerCase();
+                    row.style.display = descripcion.includes(filtro) ? "" : "none";
+                });
+            });
+        }
+    });
+</script>
 
 {% endblock %}

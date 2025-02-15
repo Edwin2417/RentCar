@@ -30,7 +30,7 @@ class RolSerializer(serializers.ModelSerializer):
 
 # Serializer para Usuario
 class UsuarioSerializer(serializers.ModelSerializer):
-    rol = serializers.PrimaryKeyRelatedField(queryset=Rol.objects.all())  # Muestra el texto del rol en lugar del ID
+    rol = serializers.PrimaryKeyRelatedField(queryset=Rol.objects.all())  
     estado = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all())
 
     class Meta:
@@ -40,8 +40,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 # Serializer para Empleado
 class EmpleadoSerializer(serializers.ModelSerializer):
-    usuario = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all()) # Detalle del usuario relacionado
-    estado = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all())  # Solo texto del estado
+    usuario = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all()) 
+    estado = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all())  
 
     class Meta:
         model = Empleado
@@ -108,9 +108,9 @@ class VehiculoSerializer(serializers.ModelSerializer):
 
 # Serializer para Inspeccion
 class InspeccionSerializer(serializers.ModelSerializer):
-    vehiculo = VehiculoSerializer(read_only=True)
-    cliente = ClienteSerializer(read_only=True)
-    empleado_inspeccion = EmpleadoSerializer(read_only=True)
+    vehiculo = serializers.PrimaryKeyRelatedField(queryset=Vehiculo.objects.all())
+    cliente = serializers.PrimaryKeyRelatedField(queryset=Cliente.objects.all())
+    empleado_inspeccion = serializers.PrimaryKeyRelatedField(queryset=Empleado.objects.all())
     estado = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all())
 
     class Meta:
@@ -120,9 +120,9 @@ class InspeccionSerializer(serializers.ModelSerializer):
 
 # Serializer para RentaDevolucion
 class RentaDevolucionSerializer(serializers.ModelSerializer):
-    empleado = EmpleadoSerializer(read_only=True)
-    vehiculo = VehiculoSerializer(read_only=True)
-    cliente = ClienteSerializer(read_only=True)
+    vehiculo = serializers.PrimaryKeyRelatedField(queryset=Vehiculo.objects.all())
+    cliente = serializers.PrimaryKeyRelatedField(queryset=Cliente.objects.all())
+    empleado = serializers.PrimaryKeyRelatedField(queryset=Empleado.objects.all())
     estado = serializers.PrimaryKeyRelatedField(queryset=Estado.objects.all())
 
     class Meta:

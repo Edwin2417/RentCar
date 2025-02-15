@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Rentas y Devoluciones | Indexing Car Rental{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-white">Rentas y Devoluciones</h2>
+        <div class="input-group" style="width: 300px;">
+            <input type="text" id="buscadorRentas" class="form-control rounded-pill"
+                placeholder="Buscar por vehículo o cliente">
+        </div>
+        <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
+            data-bs-target="#crearRentaModal">Nueva Renta</a>
+    </div>
+
+    <table class="table table-hover align-middle" style="background-color: #121212; color: white; width: 100%;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <th class="py-3">ID</th>
+                <th class="py-3">Vehículo</th>
+                <th class="py-3">Cliente</th>
+                <th class="py-3">Empleado</th>
+                <th class="py-3">Fecha Renta</th>
+                <th class="py-3">Fecha Devolución</th>
+                <th class="py-3">Monto/Día</th>
+                <th class="py-3">Cantidad Días</th>
+                <th class="py-3">Comentario</th>
+                <th class="py-3">Estado</th>
+                <th class="py-3">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for renta in rentas %}
+            <tr class="renta-row" style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td class="py-3">{{ renta.identificador }}</td>
+                <td class="py-3 descripcion-vehiculo">
+                    {% for vehiculo in vehiculos %}
+                        {% if vehiculo.identificador == renta.vehiculo %}
+                            {{ vehiculo.descripcion }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                
+                <td class="py-3 cliente-renta">
+                    {% for cliente in clientes %}
+                        {% if cliente.identificador == renta.cliente %}
+                            {{ cliente.nombre }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                
+                <td class="py-3">
+                    {% for empleado in empleados %}
+                        {% if empleado.identificador == renta.empleado %}
+                            {{ empleado.nombre }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                
+                <td class="py-3">{{ renta.fecha_renta }}</td>
+                <td class="py-3">{{ renta.fecha_devolucion|default:"No devuelto" }}</td>
+                <td class="py-3">${{ renta.monto_por_dia }}</td>
+                <td class="py-3">{{ renta.cantidad_dias }}</td>
+                <td class="py-3">{{ renta.comentario|default:"Sin comentarios" }}</td>
+
+                <td class="py-3">
+                    {% for estado in estados %}
+                        {% if estado.identificador == renta.estado %}
+                            <span class="badge bg-{% if estado.identificador == 1 %}success{% else %}danger{% endif %} rounded-pill px-3 py-2">{{ estado.descripcion }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+
+                <!-- Acciones -->
+                <td class="py-3">
+                    <div class="acciones-btns">
+                        <button class="btn btn-warning text-white btn-editar" data-id="{{ renta.identificador }}">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button class="btn btn-danger text-white btn-eliminar" data-id="{{ renta.identificador }}">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+                <td colspan="11" class="text-center py-4">No hay rentas disponibles</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include "paginator.html" %}
+{% include "toasts.html" %}
+{% include "renta_devolucion/renta_modals.html" %}
+
+<script src="{% static 'js/renta.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let buscador = document.getElementById("buscadorRentas");
+        let filas = document.querySelectorAll(".renta-row");
+
+        if (buscador) {
+            buscador.addEventListener("input", function () {
+                let filtro = this.value.trim().toLowerCase();
+
+                filas.forEach(row => {
+                    let vehiculo = row.querySelector(".descripcion-vehiculo").textContent.toLowerCase();
+                    let cliente = row.querySelector(".cliente-renta").textContent.toLowerCase();
+                    row.style.display = (vehiculo.includes(filtro) || cliente.includes(filtro)) ? "" : "none";
+                });
+            });
+        }
+    });
+</script>
+
+{% endblock %}

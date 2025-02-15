@@ -8,6 +8,10 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="text-white">Usuarios</h2>
+        <div class="input-group" style="width: 300px;">
+            <input type="text" id="buscadorUsuarios" class="form-control rounded-pill"
+                placeholder="Buscar por nombre de usuario">
+        </div>
         <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
             data-bs-target="#crearUsuarioModal">Crear Usuario</a>
     </div>
@@ -17,7 +21,7 @@
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
                 <th class="py-3">ID</th>
                 <th class="py-3">Nombre de Usuario</th>
-                <th class="py-3">Contraseña</th>
+                <!-- <th class="py-3">Contraseña</th> -->
                 <th class="py-3">Rol</th>
                 <th class="py-3">Estado</th>
                 <th class="py-3">Acciones</th>
@@ -25,10 +29,10 @@
         </thead>
         <tbody>
             {% for usuario in usuarios %}
-            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+            <tr class="usuario-row" style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
                 <td class="py-3">{{ usuario.identificador }}</td>
-                <td class="py-3">{{ usuario.nombre_usuario }}</td>
-                <td class="py-3">{{ usuario.contrasena }}</td>
+                <td class="py-3 nombre-usuario">{{ usuario.nombre_usuario }}</td>
+                <!-- <td class="py-3">{{ usuario.contrasena }}</td> -->
                 <!-- Rol -->
                 <td class="py-3">
                     {% for rol in roles %}
@@ -65,7 +69,7 @@
             </tr>
             {% empty %}
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
-                <td colspan="5" class="text-center py-4">No hay usuarios disponibles</td>
+                <td colspan="6" class="text-center py-4">No hay usuarios disponibles</td>
             </tr>
             {% endfor %}
         </tbody>        
@@ -77,5 +81,22 @@
 {% include "usuario/usuario_modals.html" %}
 
 <script src="{% static 'js/usuario.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let buscador = document.getElementById("buscadorUsuarios");
+        let filas = document.querySelectorAll(".usuario-row");
+
+        if (buscador) {
+            buscador.addEventListener("input", function () {
+                let filtro = this.value.trim().toLowerCase();
+
+                filas.forEach(row => {
+                    let nombreUsuario = row.querySelector(".nombre-usuario").textContent.toLowerCase();
+                    row.style.display = nombreUsuario.includes(filtro) ? "" : "none";
+                });
+            });
+        }
+    });
+</script>
 
 {% endblock %}

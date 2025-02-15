@@ -1,19 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Función para mostrar errores debajo de los inputs
-    function mostrarErrorCampo(campo, mensaje) {
-        let errorSpan = campo.nextElementSibling;
-        if (!errorSpan || !errorSpan.classList.contains("error-message")) {
-            errorSpan = document.createElement("span");
-            errorSpan.classList.add("error-message");
-            errorSpan.style.color = "red";
-            errorSpan.style.fontSize = "16px";
-            errorSpan.style.display = "block";
-            campo.parentNode.appendChild(errorSpan);
-        }
-        errorSpan.innerText = mensaje;
+
+    function mostrarErrorCampo(input, mensaje) {
+        input.classList.add("is-invalid");
+            let errorDiv = input.nextElementSibling;
+            if (!errorDiv || !errorDiv.classList.contains("invalid-feedback")) {
+                errorDiv = document.createElement("div");
+                errorDiv.classList.add("invalid-feedback");
+                input.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.textContent = mensaje;
+            valido = false;
     }
 
-    // Función para limpiar errores cuando el usuario escribe
+
     function limpiarErrorCampo(campo) {
         let errorSpan = campo.nextElementSibling;
         if (errorSpan && errorSpan.classList.contains("error-message")) {
@@ -21,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Aplicar la limpieza de errores cuando el usuario empieza a escribir
     document.querySelectorAll("input, select").forEach(campo => {
         campo.addEventListener("input", function () {
             limpiarErrorCampo(this);
@@ -60,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 if (data.message) {
                     mostrarToast('success', data.message);
-                    document.getElementById("crearMarcaForm").reset(); // Limpiar formulario
+                    document.getElementById("crearMarcaForm").reset(); 
                     const modal = bootstrap.Modal.getInstance(document.getElementById('crearMarcaModal'));
                     modal.hide();
                     setTimeout(() => location.reload(), 1000);
@@ -72,25 +70,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    // Función para manejar la EDICIÓN de una marca
     document.querySelectorAll(".btn-editar").forEach(button => {
         button.addEventListener("click", function () {
             const id = this.dataset.id;
             const descripcion = this.dataset.descripcion;
             const estado = this.dataset.estado;
 
-            // Llenar el modal con los datos actuales
             document.getElementById("editDescripcion").value = descripcion;
             document.getElementById("editEstado").value = estado;
             document.getElementById("editarMarca").dataset.id = id;
 
-            // Mostrar el modal de edición
             const modal = new bootstrap.Modal(document.getElementById("editarMarcaModal"));
             modal.show();
         });
     });
 
-     // Guardar cambios en la marca editada
     document.getElementById("editarMarca").addEventListener("click", function () {
         const id = this.dataset.id;
         const descripcion = document.getElementById("editDescripcion");
@@ -131,20 +125,17 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
     });
-    // Función para ELIMINAR una marca
+
     document.querySelectorAll(".btn-eliminar").forEach(button => {
         button.addEventListener("click", function () {
             const id = this.dataset.id;
 
-            // Guardar el ID en un atributo del botón "Eliminar"
             const confirmarBtn = document.getElementById("confirmarEliminar");
             confirmarBtn.dataset.id = id;
 
-            // Mostrar el modal
             const modal = new bootstrap.Modal(document.getElementById("modalConfirmacion"));
             modal.show();
 
-            // Manejar la confirmación de eliminación
             confirmarBtn.onclick = function () {
                 fetch(`/api/marca/${id}`, {
                     method: "DELETE",
@@ -167,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// Función para mostrar los toasts de notificación
+
 function mostrarToast(tipo, mensaje) {
     const toastEl = document.getElementById(`toast${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
     toastEl.querySelector('.toast-body').innerText = mensaje;

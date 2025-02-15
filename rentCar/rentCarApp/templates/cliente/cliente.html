@@ -8,6 +8,10 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="text-white">Clientes</h2>
+        <div class="input-group" style="width: 300px;">
+            <input type="text" id="buscadorClientes" class="form-control rounded-pill"
+                placeholder="Buscar por nombre o cédula">
+        </div>
         <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
             data-bs-target="#crearClienteModal">Crear Cliente</a>
     </div>
@@ -27,10 +31,10 @@
         </thead>
         <tbody>
             {% for cliente in clientes %}
-            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
+            <tr class="cliente-row" style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
                 <td class="py-3">{{ cliente.identificador }}</td>
-                <td class="py-3">{{ cliente.nombre }}</td>
-                <td class="py-3">{{ cliente.cedula }}</td>
+                <td class="py-3 nombre-cliente">{{ cliente.nombre }}</td>
+                <td class="py-3 cedula-cliente">{{ cliente.cedula }}</td>
                 <td class="py-3">{{ cliente.no_tarjeta_cr }}</td>
                 <td class="py-3">RD$ {{ cliente.limite_credito }}</td>
                 <td class="py-3">{{ cliente.tipo_persona }}</td>
@@ -76,5 +80,24 @@
 {% include "cliente/cliente_modals.html" %}
 
 <script src="{% static 'js/cliente.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let buscador = document.getElementById("buscadorClientes");
+        let filas = document.querySelectorAll(".cliente-row");
+
+        if (buscador) {
+            buscador.addEventListener("input", function () {
+                let filtro = this.value.trim().toLowerCase();
+
+                filas.forEach(row => {
+                    let nombreCliente = row.querySelector(".nombre-cliente").textContent.toLowerCase();
+                    let cedulaCliente = row.querySelector(".cedula-cliente").textContent.toLowerCase();
+
+                    row.style.display = (nombreCliente.includes(filtro) || cedulaCliente.includes(filtro)) ? "" : "none";
+                });
+            });
+        }
+    });
+</script>
 
 {% endblock %}
