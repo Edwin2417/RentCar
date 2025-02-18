@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    function calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput) {
+    function calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput, montoPorDiaInput) {
         const fechaRenta = new Date(fechaRentaInput.value);
         const fechaDevolucion = new Date(fechaDevolucionInput.value);
 
@@ -8,8 +8,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const diferenciaTiempo = fechaDevolucion - fechaRenta;
             const dias = Math.ceil(diferenciaTiempo / (1000 * 60 * 60 * 24));
             cantidadDiasInput.value = dias;
+
+            if (dias >= 1) {
+                const montoPorDia = 500; 
+                const montoTotal = montoPorDia * dias;
+                montoPorDiaInput.value = montoTotal;
+            } else {
+                montoPorDiaInput.value = ""; 
+            }
         } else {
             cantidadDiasInput.value = "";
+            montoPorDiaInput.value = ""; 
         }
     }
 
@@ -19,8 +28,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const fechaRentaInput = form.querySelector("#fecha_renta, #editFechaRenta");
             const fechaDevolucionInput = form.querySelector("#fecha_devolucion, #editFechaDevolucion");
             const cantidadDiasInput = form.querySelector("#cantidad_dias, #editCantidadDias");
+            const montoPorDiaInput = form.querySelector("#monto_por_dia, #editMontoPorDia");
 
-            calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput);
+            calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput, montoPorDiaInput);
         });
     });
 
@@ -30,8 +40,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const fechaRentaInput = form.querySelector("#fecha_renta, #editFechaRenta");
             const fechaDevolucionInput = form.querySelector("#fecha_devolucion, #editFechaDevolucion");
             const cantidadDiasInput = form.querySelector("#cantidad_dias, #editCantidadDias");
+            const montoPorDiaInput = form.querySelector("#monto_por_dia, #editMontoPorDia");
 
-            calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput);
+            calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput, montoPorDiaInput);
         });
     });
 

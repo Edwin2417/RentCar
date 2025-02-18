@@ -127,6 +127,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
     
+    function mostrarToast(tipo, mensaje) {
+        const toastEl = document.getElementById(`toast${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+        toastEl.querySelector('.toast-body').innerText = mensaje;
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    }
+    
+    
     document.getElementById('guardarInspeccion').addEventListener('click', function () {
         const form = document.getElementById("crearInspeccionForm");
         if (!validarFormularioInspeccion(form)) return;
