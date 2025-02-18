@@ -75,23 +75,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const cantidad_combustible = formulario.querySelector("#cantidad_combustible, #editCantidadCombustible");
         const estado = formulario.querySelector("#estado, #editEstado");
     
-        // Lista de campos a validar
+ 
         const campos = [vehiculo, cliente, empleado_inspeccion, fecha, cantidad_combustible, estado];
-    
-        // Validar cada campo
+
         campos.forEach(campo => {
             if (!campo.value.trim()) {
                 mostrarErrorCampo(campo, "Este campo es obligatorio.");
                 valido = false;
             } else {
-                limpiarErrorCampo(campo); // Si el campo es válido, limpiamos el error
+                limpiarErrorCampo(campo); 
             }
         });
     
         return valido;
     }
     
-    // Función para mostrar error en un campo
+
     function mostrarErrorCampo(input, mensaje) {
         input.classList.add("is-invalid");
         input.classList.remove("is-valid");
@@ -104,8 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         errorDiv.textContent = mensaje;
     }
-    
-    // Función para limpiar el error si el campo es válido
+
     function limpiarErrorCampo(input) {
         input.classList.remove("is-invalid");
         input.classList.add("is-valid");
@@ -123,7 +121,6 @@ document.addEventListener("DOMContentLoaded", function () {
         toast.show();
     }
     
-    // Agregar validación en tiempo real (cada vez que el usuario escribe)
     document.querySelectorAll("#formInspeccion input, #formInspeccion select").forEach(input => {
         input.addEventListener("input", () => {
             if (input.value.trim()) {
