@@ -145,7 +145,7 @@
 {% include "toasts.html" %}
 {% include "renta_devolucion/renta_modals.html" %}
 
-<script src="{% static 'js/renta.js' %}"></script>
+<script src="{% static 'js/rentas.js' %}"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         function filtrarTabla() {
@@ -164,13 +164,13 @@
                 let fechaDevolucion = row.querySelector(".fecha-devolucion")?.textContent.trim() || "";
                 let estado = row.querySelector(".estado-renta")?.getAttribute("data-id") || "";
     
-                // Convertir fechas a formato YYYY-MM-DD para comparación
+
                 let fechaRentaFormato = fechaRenta ? new Date(fechaRenta).toISOString().split('T')[0] : "";
                 let fechaDevolucionFormato = fechaDevolucion && fechaDevolucion !== "No devuelto"
                     ? new Date(fechaDevolucion).toISOString().split('T')[0]
                     : "";
     
-                // Validar si debe mostrarse la fila
+
                 let mostrar = (!filtroVehiculo || vehiculo === filtroVehiculo) &&
                               (!filtroCliente || cliente === filtroCliente) &&
                               (!filtroEmpleado || empleado === filtroEmpleado) &&
@@ -189,14 +189,14 @@
             document.getElementById("filtroFechaRenta").value = "";
             document.getElementById("filtroFechaDevolucion").value = "";
             document.getElementById("filtroEstado").value = "";
-            filtrarTabla(); // Aplicar filtro para mostrar todas las filas
+            filtrarTabla(); 
         }
     
-        // Agregar eventos a los filtros
+
         document.getElementById("btnBuscar").addEventListener("click", filtrarTabla);
         document.getElementById("btnLimpiar").addEventListener("click", limpiarFiltros);
         
-        // Evento para generar el PDF
+
         document.getElementById("btnGenerarPDF").addEventListener("click", function () {
             let filtroVehiculo = document.getElementById("filtroVehiculo").value.trim();
             let filtroCliente = document.getElementById("filtroCliente").value.trim();
@@ -214,7 +214,7 @@
                 filtroEstado
             };
 
-            // Hacer una solicitud a una vista de Django que genere el PDF
+
             fetch("{% url 'generar_pdf' %}", {
                 method: 'POST',
                 headers: {
@@ -225,7 +225,7 @@
             })
             .then(response => response.blob())
             .then(blob => {
-                // Crear un enlace de descarga para el PDF
+
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
