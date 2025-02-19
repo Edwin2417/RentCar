@@ -8,12 +8,66 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="text-white">Rentas y Devoluciones</h2>
-        <div class="input-group" style="width: 300px;">
-            <input type="text" id="buscadorRentas" class="form-control rounded-pill"
-                placeholder="Buscar por vehículo o cliente">
+        <div>
+            <button id="btnGenerarPDF" class="btn btn-primary rounded-pill px-4 me-2">Generar Reporte</button>
+            <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
+                data-bs-target="#crearRentaModal">Nueva Renta</a>
         </div>
-        <a href="#" class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal"
-            data-bs-target="#crearRentaModal">Nueva Renta</a>
+    </div>
+</div>
+
+    <!-- Filtros -->
+    <div class="card p-3 mb-3" style="background-color: #1c1c1c; color: white;">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label for="filtroVehiculo" class="form-label">Vehículo</label>
+                <select id="filtroVehiculo" class="form-select rounded-pill">
+                    <option value="">Todos</option>
+                    {% for vehiculo in vehiculos %}
+                    <option value="{{ vehiculo.identificador }}">{{ vehiculo.descripcion }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="filtroCliente" class="form-label">Cliente</label>
+                <select id="filtroCliente" class="form-select rounded-pill">
+                    <option value="">Todos</option>
+                    {% for cliente in clientes %}
+                    <option value="{{ cliente.identificador }}">{{ cliente.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="filtroEmpleado" class="form-label">Empleado</label>
+                <select id="filtroEmpleado" class="form-select rounded-pill">
+                    <option value="">Todos</option>
+                    {% for empleado in empleados %}
+                    <option value="{{ empleado.identificador }}">{{ empleado.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="filtroFechaRenta" class="form-label">Fecha Renta</label>
+                <input type="date" id="filtroFechaRenta" class="form-control rounded-pill">
+            </div>
+            <div class="col-md-2">
+                <label for="filtroFechaDevolucion" class="form-label">Fecha Devolución</label>
+                <input type="date" id="filtroFechaDevolucion" class="form-control rounded-pill">
+            </div>
+            <div class="col-md-2">
+                <label for="filtroEstado" class="form-label">Estado</label>
+                <select id="filtroEstado" class="form-select rounded-pill">
+                    <option value="">Todos</option>
+                    {% for estado in estados %}
+                    <option value="{{ estado.identificador }}">{{ estado.descripcion }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="d-flex justify-content-end mt-3">
+            <button id="btnBuscar" class="btn btn-danger rounded-pill px-4 me-2">Buscar</button>
+            <button id="btnLimpiar" class="btn btn-secondary rounded-pill px-4">Limpiar Filtros</button>
+        </div>
     </div>
 
     <table class="table table-hover align-middle" style="background-color: #121212; color: white; width: 100%;">
@@ -36,45 +90,39 @@
             {% for renta in rentas %}
             <tr class="renta-row" style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
                 <td class="py-3">{{ renta.identificador }}</td>
-                <td class="py-3 descripcion-vehiculo">
+                <td class="py-3 descripcion-vehiculo" data-id="{{ renta.vehiculo }}">
                     {% for vehiculo in vehiculos %}
                         {% if vehiculo.identificador == renta.vehiculo %}
                             {{ vehiculo.descripcion }}
                         {% endif %}
                     {% endfor %}
                 </td>
-                
-                <td class="py-3 cliente-renta">
+                <td class="py-3 cliente-renta" data-id="{{ renta.cliente }}">
                     {% for cliente in clientes %}
                         {% if cliente.identificador == renta.cliente %}
                             {{ cliente.nombre }}
                         {% endif %}
                     {% endfor %}
                 </td>
-                
-                <td class="py-3">
+                <td class="py-3 empleado-renta" data-id="{{ renta.empleado }}">
                     {% for empleado in empleados %}
                         {% if empleado.identificador == renta.empleado %}
                             {{ empleado.nombre }}
                         {% endif %}
                     {% endfor %}
                 </td>
-                
-                <td class="py-3">{{ renta.fecha_renta }}</td>
-                <td class="py-3">{{ renta.fecha_devolucion|default:"No devuelto" }}</td>
+                <td class="py-3 fecha-renta">{{ renta.fecha_renta }}</td>
+                <td class="py-3 fecha-devolucion">{{ renta.fecha_devolucion|default:"No devuelto" }}</td>
                 <td class="py-3">${{ renta.monto_por_dia }}</td>
                 <td class="py-3">{{ renta.cantidad_dias }}</td>
                 <td class="py-3">{{ renta.comentario|default:"Sin comentarios" }}</td>
-
-                <td class="py-3">
+                <td class="py-3 estado-renta" data-id="{{ renta.estado }}">
                     {% for estado in estados %}
                         {% if estado.identificador == renta.estado %}
                             <span class="badge bg-{% if estado.identificador == 1 %}success{% else %}danger{% endif %} rounded-pill px-3 py-2">{{ estado.descripcion }}</span>
                         {% endif %}
                     {% endfor %}
                 </td>
-
-                <!-- Acciones -->
                 <td class="py-3">
                     <div class="acciones-btns">
                         <button class="btn btn-warning text-white btn-editar" data-id="{{ renta.identificador }}">
@@ -87,9 +135,7 @@
                 </td>
             </tr>
             {% empty %}
-            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.5);">
-                <td colspan="11" class="text-center py-4">No hay rentas disponibles</td>
-            </tr>
+            <tr><td colspan="11" class="text-center py-4">No hay rentas disponibles</td></tr>
             {% endfor %}
         </tbody>
     </table>
@@ -99,24 +145,100 @@
 {% include "toasts.html" %}
 {% include "renta_devolucion/renta_modals.html" %}
 
-<script src="{% static 'js/renta.js' %}"></script>
+<script src="{% static 'js/rentas.js' %}"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        let buscador = document.getElementById("buscadorRentas");
-        let filas = document.querySelectorAll(".renta-row");
+        function filtrarTabla() {
+            let filtroVehiculo = document.getElementById("filtroVehiculo").value.trim();
+            let filtroCliente = document.getElementById("filtroCliente").value.trim();
+            let filtroEmpleado = document.getElementById("filtroEmpleado").value.trim();
+            let filtroFechaRenta = document.getElementById("filtroFechaRenta").value;
+            let filtroFechaDevolucion = document.getElementById("filtroFechaDevolucion").value;
+            let filtroEstado = document.getElementById("filtroEstado").value.trim();
+            
+            document.querySelectorAll(".renta-row").forEach(row => {
+                let vehiculo = row.querySelector(".descripcion-vehiculo")?.getAttribute("data-id") || "";
+                let cliente = row.querySelector(".cliente-renta")?.getAttribute("data-id") || "";
+                let empleado = row.querySelector(".empleado-renta")?.getAttribute("data-id") || "";
+                let fechaRenta = row.querySelector(".fecha-renta")?.textContent.trim() || "";
+                let fechaDevolucion = row.querySelector(".fecha-devolucion")?.textContent.trim() || "";
+                let estado = row.querySelector(".estado-renta")?.getAttribute("data-id") || "";
+    
 
-        if (buscador) {
-            buscador.addEventListener("input", function () {
-                let filtro = this.value.trim().toLowerCase();
+                let fechaRentaFormato = fechaRenta ? new Date(fechaRenta).toISOString().split('T')[0] : "";
+                let fechaDevolucionFormato = fechaDevolucion && fechaDevolucion !== "No devuelto"
+                    ? new Date(fechaDevolucion).toISOString().split('T')[0]
+                    : "";
+    
 
-                filas.forEach(row => {
-                    let vehiculo = row.querySelector(".descripcion-vehiculo").textContent.toLowerCase();
-                    let cliente = row.querySelector(".cliente-renta").textContent.toLowerCase();
-                    row.style.display = (vehiculo.includes(filtro) || cliente.includes(filtro)) ? "" : "none";
-                });
+                let mostrar = (!filtroVehiculo || vehiculo === filtroVehiculo) &&
+                              (!filtroCliente || cliente === filtroCliente) &&
+                              (!filtroEmpleado || empleado === filtroEmpleado) &&
+                              (!filtroFechaRenta || fechaRentaFormato === filtroFechaRenta) &&
+                              (!filtroFechaDevolucion || fechaDevolucionFormato === filtroFechaDevolucion) &&
+                              (!filtroEstado || estado === filtroEstado);
+    
+                row.style.display = mostrar ? "" : "none";
             });
         }
+    
+        function limpiarFiltros() {
+            document.getElementById("filtroVehiculo").value = "";
+            document.getElementById("filtroCliente").value = "";
+            document.getElementById("filtroEmpleado").value = "";
+            document.getElementById("filtroFechaRenta").value = "";
+            document.getElementById("filtroFechaDevolucion").value = "";
+            document.getElementById("filtroEstado").value = "";
+            filtrarTabla(); 
+        }
+    
+
+        document.getElementById("btnBuscar").addEventListener("click", filtrarTabla);
+        document.getElementById("btnLimpiar").addEventListener("click", limpiarFiltros);
+        
+
+        document.getElementById("btnGenerarPDF").addEventListener("click", function () {
+            let filtroVehiculo = document.getElementById("filtroVehiculo").value.trim();
+            let filtroCliente = document.getElementById("filtroCliente").value.trim();
+            let filtroEmpleado = document.getElementById("filtroEmpleado").value.trim();
+            let filtroFechaRenta = document.getElementById("filtroFechaRenta").value;
+            let filtroFechaDevolucion = document.getElementById("filtroFechaDevolucion").value;
+            let filtroEstado = document.getElementById("filtroEstado").value.trim();
+
+            let filtros = {
+                filtroVehiculo,
+                filtroCliente,
+                filtroEmpleado,
+                filtroFechaRenta,
+                filtroFechaDevolucion,
+                filtroEstado
+            };
+
+
+            fetch("{% url 'generar_pdf' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(filtros)
+            })
+            .then(response => response.blob())
+            .then(blob => {
+
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'rentas_devoluciones.pdf';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            })
+            .catch(error => console.error('Error al generar el PDF:', error));
+        });
     });
 </script>
+
+    
 
 {% endblock %}

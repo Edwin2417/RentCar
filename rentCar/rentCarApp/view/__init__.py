@@ -11,5 +11,6 @@ from .cliente_view import clienteView
 from .empleado_view import empleadoView
 from .inspeccion_view import inspeccionView
 from .rentaDevolucion_view import renta_devolucion_view
+from .pdf_view import generar_pdf, aplicar_filtros
 
 # Ahora puedes importar directamente desde rentCarApp.views

@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    function calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput) {
+    function calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput, montoPorDiaInput) {
         const fechaRenta = new Date(fechaRentaInput.value);
         const fechaDevolucion = new Date(fechaDevolucionInput.value);
 
@@ -8,8 +8,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const diferenciaTiempo = fechaDevolucion - fechaRenta;
             const dias = Math.ceil(diferenciaTiempo / (1000 * 60 * 60 * 24));
             cantidadDiasInput.value = dias;
+
+            if (dias >= 1) {
+                const montoPorDia = 500;
+                const montoTotal = montoPorDia * dias;
+                montoPorDiaInput.value = montoTotal;
+            } else {
+                montoPorDiaInput.value = "";
+            }
         } else {
             cantidadDiasInput.value = "";
+            montoPorDiaInput.value = "";
         }
     }
 
@@ -19,8 +28,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const fechaRentaInput = form.querySelector("#fecha_renta, #editFechaRenta");
             const fechaDevolucionInput = form.querySelector("#fecha_devolucion, #editFechaDevolucion");
             const cantidadDiasInput = form.querySelector("#cantidad_dias, #editCantidadDias");
+            const montoPorDiaInput = form.querySelector("#monto_por_dia, #editMontoPorDia");
 
-            calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput);
+            calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput, montoPorDiaInput);
         });
     });
 
@@ -30,13 +40,26 @@ document.addEventListener("DOMContentLoaded", function () {
             const fechaRentaInput = form.querySelector("#fecha_renta, #editFechaRenta");
             const fechaDevolucionInput = form.querySelector("#fecha_devolucion, #editFechaDevolucion");
             const cantidadDiasInput = form.querySelector("#cantidad_dias, #editCantidadDias");
+            const montoPorDiaInput = form.querySelector("#monto_por_dia, #editMontoPorDia");
 
-            calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput);
+            calcularCantidadDias(fechaRentaInput, fechaDevolucionInput, cantidadDiasInput, montoPorDiaInput);
         });
     });
 
-    function filtrarVehiculosDisponibles() {
-        fetch("/api/rentaDevolucion/")
+    function filtrarVehiculosDisponiblesParaRenta() {
+        let vehiculosInspeccionados = [];
+
+        fetch("/api/inspeccion/")
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(inspeccion => {
+                    if (inspeccion.estado === 1) {
+                        vehiculosInspeccionados.push(inspeccion.vehiculo);
+                    }
+                });
+
+                return fetch("/api/rentaDevolucion/");
+            })
             .then(response => response.json())
             .then(data => {
                 let vehiculosRentados = [];
@@ -45,25 +68,25 @@ document.addEventListener("DOMContentLoaded", function () {
                         vehiculosRentados.push(renta.vehiculo);
                     }
                 });
-    
+
                 document.querySelectorAll("#vehiculo, #editVehiculo").forEach(select => {
                     select.querySelectorAll("option").forEach(option => {
                         let idVehiculo = parseInt(option.value);
-                        
-                        if (vehiculosRentados.includes(idVehiculo)) {
-                            option.style.display = "none"; 
+
+                        if (vehiculosRentados.includes(idVehiculo) || vehiculosInspeccionados.includes(idVehiculo)) {
+                            option.style.display = "none";
                         } else {
-                            option.style.display = "block"; 
+                            option.style.display = "block";
                         }
                     });
                 });
             })
-            .catch(error => console.error("Error al cargar rentas:", error));
+            .catch(error => console.error("Error al cargar datos:", error));
     }
-    
-    document.getElementById("crearRentaModal").addEventListener("show.bs.modal", filtrarVehiculosDisponibles);
-    document.getElementById("editarRentaModal").addEventListener("show.bs.modal", filtrarVehiculosDisponibles);
-    
+
+    document.getElementById("crearRentaModal").addEventListener("show.bs.modal", filtrarVehiculosDisponiblesParaRenta);
+    document.getElementById("editarRentaModal").addEventListener("show.bs.modal", filtrarVehiculosDisponiblesParaRenta);
+
 
     // function validarFecha(campo) {
     //     const fechaSeleccionada = new Date(campo.value);
@@ -79,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function validarFormularioRenta(formulario) {
         let valido = true;
-    
+
         const vehiculo = formulario.querySelector("#vehiculo");
         const cliente = formulario.querySelector("#cliente");
         const empleado = formulario.querySelector("#empleado");
@@ -88,9 +111,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const monto_por_dia = formulario.querySelector("#monto_por_dia");
         const cantidad_dias = formulario.querySelector("#cantidad_dias");
         const estado = formulario.querySelector("#estado");
-    
+
         const campos = [vehiculo, cliente, empleado, fecha_renta, monto_por_dia, cantidad_dias, estado];
-    
+
         campos.forEach(campo => {
             if (!campo.value.trim()) {
                 mostrarErrorCampo(campo, "Este campo es obligatorio.");
@@ -99,24 +122,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 limpiarErrorCampo(campo);
             }
         });
-    
+
         if (fecha_devolucion.value && new Date(fecha_devolucion.value) < new Date(fecha_renta.value)) {
             mostrarErrorCampo(fecha_devolucion, "La fecha de devolución no puede ser anterior a la de renta.");
             valido = false;
         }
-    
+
         if (!monto_por_dia.value.trim() || isNaN(monto_por_dia.value) || parseFloat(monto_por_dia.value) < 0) {
             mostrarErrorCampo(monto_por_dia, "El monto por día debe ser un número positivo.");
             valido = false;
         }
-    
+
         return valido;
     }
-    
+
     function mostrarErrorCampo(input, mensaje) {
         input.classList.add("is-invalid");
         input.classList.remove("is-valid");
-    
+
         let errorDiv = input.nextElementSibling;
         if (!errorDiv || !errorDiv.classList.contains("invalid-feedback")) {
             errorDiv = document.createElement("div");
@@ -125,27 +148,24 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         errorDiv.textContent = mensaje;
     }
-    
-    // Función para limpiar errores si el campo es válido
+
     function limpiarErrorCampo(input) {
         input.classList.remove("is-invalid");
         input.classList.add("is-valid");
-    
+
         let errorDiv = input.nextElementSibling;
         if (errorDiv && errorDiv.classList.contains("invalid-feedback")) {
             errorDiv.textContent = "";
         }
     }
-    
-    // Función para mostrar notificaciones tipo Toast
+
     function mostrarToast(tipo, mensaje) {
         const toastEl = document.getElementById(`toast${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
         toastEl.querySelector('.toast-body').innerText = mensaje;
         const toast = new bootstrap.Toast(toastEl);
         toast.show();
     }
-    
-    // Validación en tiempo real
+
     document.querySelectorAll("input, select").forEach(campo => {
         campo.addEventListener("input", function () {
             if (this.value.trim()) {
@@ -180,25 +200,25 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify(rentaData)
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                mostrarToast('success', data.message);
-                form.reset();
-                const modal = bootstrap.Modal.getInstance(document.getElementById('crearRentaModal'));
-                modal.hide();
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                mostrarToast('danger', data.error || 'Error al guardar la renta.');
-            }
-        })
-        .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    mostrarToast('success', data.message);
+                    form.reset();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('crearRentaModal'));
+                    modal.hide();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    mostrarToast('danger', data.error || 'Error al guardar la renta.');
+                }
+            })
+            .catch(error => mostrarToast('danger', 'Error en la solicitud.'));
     });
 
     document.querySelectorAll(".btn-editar").forEach(button => {
         button.addEventListener("click", function () {
             const id = this.dataset.id;
-    
+
             fetch(`/api/rentaDevolucion/${id}`)
                 .then(response => {
                     if (!response.ok) {
@@ -217,15 +237,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.getElementById("editCantidadDias").value = data.cantidad_dias;
                     document.getElementById("editComentario").value = data.comentario;
                     document.getElementById("editEstado").value = data.estado;
-    
-                    const selectEstado = document.getElementById("editEstado"); 
+
+                    const selectEstado = document.getElementById("editEstado");
 
                     if (data.estado === "Inactivo" || data.estado === 2) {
                         selectEstado.disabled = true;
                     } else {
                         selectEstado.disabled = false;
                     }
-    
+
                     new bootstrap.Modal(document.getElementById("editarRentaModal")).show();
                 })
                 .catch(error => {
@@ -234,18 +254,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
         });
     });
-    
-    
+
+
     document.getElementById("guardarCambiosRenta").addEventListener("click", function () {
         const id = document.getElementById("editRentaId").value;
-    
+
         const montoPorDia = document.getElementById("editMontoPorDia").value.trim();
         const cantidadDias = document.getElementById("editCantidadDias").value.trim();
         const fechaRenta = document.getElementById("editFechaRenta").value;
         const fechaDevolucion = document.getElementById("editFechaDevolucion").value;
-    
+
         let valido = true;
-    
+
         function mostrarErrorCampo(input, mensaje) {
             input.classList.add("is-invalid");
             let errorDiv = input.nextElementSibling;
@@ -257,30 +277,30 @@ document.addEventListener("DOMContentLoaded", function () {
             errorDiv.textContent = mensaje;
             valido = false;
         }
-    
+
         document.querySelectorAll(".is-invalid").forEach(elemento => elemento.classList.remove("is-invalid"));
         document.querySelectorAll(".invalid-feedback").forEach(elemento => elemento.remove());
-    
+
         if (!montoPorDia || isNaN(montoPorDia) || parseFloat(montoPorDia) < 0) {
             mostrarErrorCampo(document.getElementById("editMontoPorDia"), "El monto por día debe ser un número positivo.");
         }
         // if (!validarFecha(fechaRenta)) {
         //     valido = false;
         // }
-    
+
         // if (!validarFecha(fechaDevolucion)) {
         //     valido = false;
         // }
-    
-    
+
+
         if (fechaRenta && fechaDevolucion && new Date(fechaRenta) > new Date(fechaDevolucion)) {
             mostrarErrorCampo(document.getElementById("editFechaDevolucion"), "La fecha de devolución debe ser posterior a la fecha de renta.");
         }
-    
+
         if (!valido) {
             return;
         }
-    
+
         const rentaData = {
             vehiculo: document.getElementById("editVehiculo").value,
             cliente: document.getElementById("editCliente").value,
@@ -292,7 +312,7 @@ document.addEventListener("DOMContentLoaded", function () {
             comentario: document.getElementById("editComentario").value,
             estado: document.getElementById("editEstado").value
         };
-    
+
         fetch(`/api/rentaDevolucion/${id}`, {
             method: "PUT",
             headers: {
@@ -301,22 +321,22 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify(rentaData)
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Error al actualizar la renta.");
-            }
-            return response.json();
-        })
-        .then(data => {
-            mostrarToast("success", "Renta actualizada correctamente.");
-            setTimeout(() => location.reload(), 1000);
-        })
-        .catch(error => {
-            mostrarToast("danger", "Error al actualizar la renta.");
-            console.error("Error:", error);
-        });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error al actualizar la renta.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                mostrarToast("success", "Renta actualizada correctamente.");
+                setTimeout(() => location.reload(), 1000);
+            })
+            .catch(error => {
+                mostrarToast("danger", "Error al actualizar la renta.");
+                console.error("Error:", error);
+            });
     });
-    
+
     document.querySelectorAll(".btn-eliminar").forEach(button => {
         button.addEventListener("click", function () {
             const id = this.dataset.id;
@@ -324,30 +344,30 @@ document.addEventListener("DOMContentLoaded", function () {
             new bootstrap.Modal(document.getElementById("eliminarRentaModal")).show();
         });
     });
-    
+
     document.getElementById("confirmarEliminarRenta").addEventListener("click", function () {
         const id = document.getElementById("renta_id_eliminar").value;
-        
+
         if (!id) {
             mostrarToast("danger", "Error: No se pudo obtener el ID de la renta.");
             return;
         }
-        
+
         fetch(`/api/rentaDevolucion/${id}`, {
             method: "DELETE",
-            headers: { 
+            headers: {
                 "X-CSRFToken": document.querySelector("input[name=csrfmiddlewaretoken]").value
             }
         })
-        .then(response => {
-            if (!response.ok) throw new Error("Error al eliminar la renta");
-            return response.json();
-        })
-        .then(data => {
-            mostrarToast("success", "Renta eliminada exitosamente.");
-            setTimeout(() => location.reload(), 1000);
-        })
-        .catch(error => mostrarToast("danger", "Error al eliminar la renta."));
+            .then(response => {
+                if (!response.ok) throw new Error("Error al eliminar la renta");
+                return response.json();
+            })
+            .then(data => {
+                mostrarToast("success", "Renta eliminada exitosamente.");
+                setTimeout(() => location.reload(), 1000);
+            })
+            .catch(error => mostrarToast("danger", "Error al eliminar la renta."));
     });
 
 });

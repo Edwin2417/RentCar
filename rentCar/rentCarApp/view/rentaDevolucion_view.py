@@ -8,7 +8,7 @@ from rentCarApp.decorators import login_required_custom, admin_required
 @login_required_custom
 def renta_devolucion_view(request):
     renta_list = RentaDevolucion.objects.all()
-    paginator = Paginator(renta_list, 5)
+    paginator = Paginator(renta_list, 4)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     

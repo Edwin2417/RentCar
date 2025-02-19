@@ -64,21 +64,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 estado: parseInt(estado.value)
             })
         })
-        .then(response => response.json())
-        .then(data => {
+        .then(response => {
             if (response.ok) {
-                mostrarToast('success', data.message || 'Tipo de combustible agregado exitosamente.');
-                document.getElementById("creartipoCombustibleForm").reset();
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById('creartipoCombustibleModal'));
-                modal.hide();
-
-                setTimeout(() => location.reload(), 1000);
+                return response.json();  // Si la respuesta es correcta, la convertimos en JSON
             } else {
-                mostrarToast('danger', data.error || 'Error al guardar el tipo de combustible.');
+                throw new Error('Error al guardar el tipo de combustible.');  // Si no, lanzamos un error
             }
         })
-        .catch(error => mostrarToast('danger', 'Error inesperado al procesar los datos.'));
+        .then(data => {
+            // Aquí, procesamos la respuesta convertida en JSON
+            mostrarToast('success', data.message || 'Tipo de combustible agregado exitosamente.');
+            document.getElementById("creartipoCombustibleForm").reset();
+        
+            const modal = bootstrap.Modal.getInstance(document.getElementById('creartipoCombustibleModal'));
+            modal.hide();
+        
+            setTimeout(() => location.reload(), 1000);  // Recargamos la página después de un tiempo
+        })
+        .catch(error => {
+            // Si algo falla, mostramos un mensaje de error
+            mostrarToast('danger', error.message || 'Error inesperado al procesar los datos.');
+        });
+        
     });
 
     document.querySelectorAll(".btn-editar").forEach(button => {

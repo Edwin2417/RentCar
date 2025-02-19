@@ -11,6 +11,7 @@ from rentCarApp.view.cliente_view import clienteView
 from rentCarApp.view.empleado_view import empleadoView
 from rentCarApp.view.inspeccion_view import inspeccionView
 from rentCarApp.view.rentaDevolucion_view import renta_devolucion_view
+from rentCarApp.view.pdf_view import generar_pdf
 
 urlpatterns = [
     path('', login_view, name='login'),  
@@ -27,5 +28,6 @@ urlpatterns = [
     path('empleados/', empleadoView, name='empleadoView'),
     path('inspecciones/', inspeccionView, name='inspeccionView'),
     path('rentaDevolucion/', renta_devolucion_view, name='renta_devolucion_view'),
+    path('generar_pdf/', generar_pdf, name='generar_pdf'),
     
 ]

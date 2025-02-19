@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th, .table td {
+            border: 1px solid #dddddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .table td {
+            background-color: #fafafa;
+        }
+
+        .table tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+
+        .table tr:hover td {
+            background-color: #f1f1f1;
+        }
+
+        .table td {
+            font-size: 12px;
+        }
+
+        .table th, .table td {
+            font-size: 14px;
+        }
+
+        /* Opcional: Mejorar el espaciado y borde */
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+    <h2>Reporte de Rentas y Devoluciones</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Vehículo</th>
+                <th>Cliente</th>
+                <th>Empleado</th>
+                <th>Fecha Renta</th>
+                <th>Fecha Devolución</th>
+                <th>Monto/Día</th>
+                <th>Cantidad Días</th>
+                <th>Comentario</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for renta in rentas %}
+            <tr>
+                <td>{{ renta.identificador }}</td>
+                <td>{{ renta.vehiculo.descripcion }}</td>
+                <td>{{ renta.cliente.nombre }}</td>
+                <td>{{ renta.empleado.nombre }}</td>
+                <td>{{ renta.fecha_renta|date:"Y-m-d" }}</td>
+                <td>{{ renta.fecha_devolucion|date:"Y-m-d" }}</td>
+                <td>${{ renta.monto_por_dia }}</td>
+                <td>{{ renta.cantidad_dias }}</td>
+                <td>{{ renta.comentario|default:"Sin comentarios" }}</td>
+                <td>{{ renta.estado.descripcion }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
